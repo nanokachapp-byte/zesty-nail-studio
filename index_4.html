@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zesty Nail Studio</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zesty">
+<meta name="theme-color" content="#F5EEE8">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F2EE;--white:#FFFFFF;--text:#1A1A1A;--muted:#8A8A8A;--border:#EDE8E3;
+  --green:#34C759;--green-light:#E8F8ED;--orange:#FF6B35;--orange-light:#FFF0EB;
+  --pink:#E8A598;--pink-light:#FDF2F0;--purple:#C4B5D4;--purple-light:#F5F0FA;
+  --gold:#C9A96E;--radius:20px;--radius-sm:12px;--radius-xs:8px;
+  --shadow:0 4px 24px rgba(0,0,0,0.06);--shadow-sm:0 2px 12px rgba(0,0,0,0.04);
+  --font:'Sarabun',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s;}
+#splash.hide{opacity:0;pointer-events:none;}
+#splash-logo{width:96px;height:96px;border-radius:24px;object-fit:cover;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+#splash h1{font-size:26px;font-weight:700;color:var(--text);}
+#splash p{font-size:14px;color:var(--muted);}
+.dots{display:flex;gap:6px;margin-top:8px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--pink);opacity:.4;animation:pulse 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* LAYOUT */
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:-webkit-fill-available;}
+.screen{flex:1;overflow-y:auto;padding:0 0 100px;padding-top:env(safe-area-inset-top);}
+.page{display:none;padding:20px 16px;}.page.active{display:block;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom));display:flex;z-index:100;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;font-family:var(--font);font-size:10px;color:var(--muted);cursor:pointer;transition:all .2s;}
+.nav-btn.active{color:var(--orange);}
+.nav-btn .nb-icon{font-size:22px;line-height:1;}
+.nav-btn.active .nb-icon{transform:scale(1.1);}
+
+/* CENTER FAB */
+.fab-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:2px;}
+.fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#FF8C5A);box-shadow:0 4px 16px rgba(255,107,53,0.4);display:flex;align-items:center;justify-content:center;font-size:26px;border:none;cursor:pointer;margin-top:-20px;transition:transform .15s;}
+.fab:active{transform:scale(0.92);}
+.fab-label{font-size:9px;color:var(--orange);margin-top:2px;font-family:var(--font);}
+
+/* HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.page-title{font-size:24px;font-weight:700;}
+.header-right{display:flex;gap:8px;align-items:center;}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--white);border:none;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm);}
+
+/* SYNC STATUS */
+.sync-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 10px;border-radius:20px;}
+.sync-ok{background:#E8F8ED;color:#1A7A3A;}.sync-err{background:#FEE2E2;color:#991B1B;}.sync-load{background:#FEF9C3;color:#854D0E;}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);}
+.stat-card.wide{grid-column:span 2;}
+.stat-icon{font-size:24px;margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:700;}
+.stat-val.green{color:var(--green);}
+.stat-val.orange{color:var(--orange);}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* SECTION */
+.section{margin-bottom:20px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.section-title{font-size:16px;font-weight:600;}
+.see-all{font-size:13px;color:var(--orange);border:none;background:none;font-family:var(--font);cursor:pointer;}
+
+/* MEMBER CARDS (new style) */
+.member-card{background:var(--white);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.mc-avatar{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;}
+.mc-info{flex:1;min-width:0;}
+.mc-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.mc-balance{text-align:right;}
+.mc-amount{font-size:18px;font-weight:700;}
+.mc-amount.green{color:var(--green);}
+.mc-amount.orange{color:var(--orange);}
+.mc-amount.red{color:#E24B4A;}
+.mc-tier{font-size:11px;color:var(--muted);}
+.mc-actions{display:flex;gap:6px;margin-top:10px;}
+
+/* ACTION BUTTONS — color coded */
+.act-btn{flex:1;padding:10px;border-radius:var(--radius-sm);border:none;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;}
+.act-btn:active{transform:scale(0.96);}
+.act-green{background:var(--green);color:white;}
+.act-orange{background:var(--orange);color:white;}
+.act-outline{background:var(--white);color:var(--text);border:1.5px solid var(--border);}
+.act-ghost{background:var(--bg);color:var(--muted);}
+
+/* APPOINTMENT CARD */
+.appt-card{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.appt-time-block{background:var(--bg);border-radius:var(--radius-xs);padding:8px 10px;text-align:center;flex-shrink:0;min-width:54px;}
+.appt-hour{font-size:17px;font-weight:700;}
+.appt-ampm{font-size:10px;color:var(--muted);}
+.appt-info{flex:1;}
+.appt-name{font-size:15px;font-weight:600;}
+.appt-svc{font-size:12px;color:var(--muted);margin-top:1px;}
+.appt-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.st-waiting{background:#FEF9C3;color:#854D0E;}
+.st-confirmed{background:var(--green-light);color:#1A7A3A;}
+.st-done{background:#E8E8E8;color:#555;}
+.st-cancel{background:#FEE2E2;color:#991B1B;}
+.appt-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.appt-act{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:none;font-family:var(--font);cursor:pointer;}
+
+/* TX ROW */
+.tx-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.tx-row:last-child{border-bottom:none;}
+.tx-dot{width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.tx-info{flex:1;}.tx-name{font-size:14px;font-weight:500;}.tx-date{font-size:12px;color:var(--muted);}
+.tx-amt{font-size:15px;font-weight:700;}
+
+/* PKG CARDS */
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.pkg-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;text-align:center;}
+.pkg-card:hover,.pkg-card:active{border-color:var(--orange);transform:translateY(-2px);}
+.pkg-card.feat{border-color:var(--orange);background:var(--orange-light);}
+.pkg-rec{display:inline-block;background:var(--orange);color:white;font-size:10px;padding:2px 8px;border-radius:20px;margin-bottom:8px;}
+.pkg-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.pkg-price{font-size:22px;font-weight:700;color:var(--orange);}
+.pkg-credit{font-size:11px;color:var(--muted);margin-top:3px;}
+.pkg-bonus{font-size:11px;color:var(--green);font-weight:600;}
+
+/* FORM */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.fi{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);color:var(--text);background:var(--white);outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--orange);}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A8A8A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.mbox{background:var(--white);border-radius:28px 28px 0 0;padding:24px 20px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.mhandle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;}
+.mtitle{font-size:20px;font-weight:700;margin-bottom:16px;}
+.mfoot{display:flex;gap:10px;margin-top:20px;}
+
+/* QUICK ACTION MODAL */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+.qa-btn{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:20px 12px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--font);}
+.qa-btn:active{transform:scale(0.96);}
+.qa-icon{font-size:32px;margin-bottom:8px;}
+.qa-label{font-size:14px;font-weight:600;}
+.qa-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.qa-btn.qa-green{border-color:var(--green);background:var(--green-light);}
+.qa-btn.qa-orange{border-color:var(--orange);background:var(--orange-light);}
+
+/* INFO BOX */
+.info-box{border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;}
+.ib-green{background:var(--green-light);border-left:4px solid var(--green);}
+.ib-orange{background:var(--orange-light);border-left:4px solid var(--orange);}
+.ib-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+
+/* LOW BALANCE ALERT */
+.alert-card{background:linear-gradient(135deg,#FFF0EB,#FFE5D8);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.alert-icon{font-size:20px;flex-shrink:0;}
+.alert-text{flex:1;font-size:13px;}
+.alert-name{font-weight:600;}
+
+/* CALENDAR STRIP */
+.cal-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;-ms-overflow-style:none;scrollbar-width:none;}
+.cal-strip::-webkit-scrollbar{display:none;}
+.cal-day{min-width:52px;padding:10px 6px;border-radius:16px;text-align:center;cursor:pointer;border:1.5px solid var(--border);background:var(--white);transition:all .15s;}
+.cal-day.active{background:var(--orange);border-color:var(--orange);color:white;}
+.cal-day.has-appt{border-color:var(--pink);}
+.cal-date{font-size:20px;font-weight:700;}
+.cal-name{font-size:10px;color:var(--muted);margin-top:2px;}
+.cal-day.active .cal-name{color:rgba(255,255,255,.8);}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:16px;}
+.search-wrap input{padding-left:44px;}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);}
+
+/* QR */
+#qr-video{width:100%;border-radius:var(--radius);max-height:280px;object-fit:cover;background:#000;}
+.qr-frame-wrap{position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
+.qr-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.qr-frame{width:180px;height:180px;border:3px solid var(--orange);border-radius:16px;box-shadow:0 0 0 1000px rgba(0,0,0,.5);}
+
+/* TIER BADGE */
+.tier{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.tier-silver{background:#E8E8E8;color:#555;}
+.tier-gold{background:#FFF0CC;color:#8A6000;}
+.tier-platinum{background:var(--purple-light);color:#534AB7;}
+
+/* TOAST */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(40px);background:#1A1A1A;color:white;padding:12px 20px;border-radius:20px;font-size:13px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:rgba(247,242,238,.85);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+#loading.show{display:flex;}
+.loading-ring{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:15px;margin-bottom:16px;}
+
+/* SETTINGS */
+.setting-group{background:var(--white);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+.setting-item{display:flex;align-items:center;padding:16px;border-bottom:1px solid var(--border);gap:12px;}
+.setting-item:last-child{border-bottom:none;}
+.setting-icon{font-size:20px;width:36px;text-align:center;}
+.setting-label{flex:1;font-size:15px;font-weight:500;}
+.setting-value{font-size:14px;color:var(--muted);}
+
+/* MOBILE ONLY */
+@media(min-width:600px){
+  .app{max-width:430px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,.1);}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div style="font-size:72px;">💅</div>
+  <h1>Zesty Nail Studio</h1>
+  <p>by Pang</p>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+</div>
+
+<div id="loading"><div class="loading-ring"></div><div style="font-size:14px;color:var(--muted);">กำลังบันทึก...</div></div>
+
+<div class="app">
+  <div class="screen">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div style="font-size:13px;color:var(--muted);">สวัสดีค่ะ 👋</div>
+          <div class="page-title" id="dash-shop-name">Zesty Nail Studio</div>
+        </div>
+        <div class="header-right">
+          <div class="sync-pill sync-load" id="sync-status">⏳</div>
+        </div>
+      </div>
+      <div id="low-alerts"></div>
+      <div class="stat-row" id="stat-grid"></div>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">📅 นัดหมายวันนี้</div>
+          <button class="see-all" onclick="goPage('appointments')">ดูทั้งหมด →</button>
+        </div>
+        <div id="dash-appts"></div>
+      </div>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">🕐 รายการล่าสุด</div>
+        </div>
+        <div style="background:var(--white);border-radius:var(--radius);padding:4px 16px;box-shadow:var(--shadow-sm);" id="dash-recent"></div>
+      </div>
+    </div>
+
+    <!-- ── MEMBERS ── -->
+    <div class="page" id="page-members">
+      <div class="page-header">
+        <div class="page-title">สมาชิก</div>
+        <button class="icon-btn" onclick="openAddMember()">➕</button>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="fi" id="search-input" placeholder="ค้นหาชื่อหรือเบอร์โทร..." oninput="renderMembers()">
+      </div>
+      <div id="members-list"></div>
+    </div>
+
+    <!-- ── NFC SCAN ── -->
+    <div class="page" id="page-qr">
+      <div class="page-header"><div class="page-title">แตะบัตร NFC</div></div>
+
+      <!-- NFC Section -->
+      <div style="background:var(--white);border-radius:var(--radius);padding:24px;margin-bottom:14px;box-shadow:var(--shadow-sm);text-align:center;">
+        <div style="font-size:64px;margin-bottom:16px;">📡</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:8px;">แตะบัตร NFC กับมือถือ</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">ระบบจะดึงข้อมูลสมาชิกขึ้นมาทันที</div>
+        <button class="act-btn act-orange" style="width:100%;padding:18px;font-size:16px;margin-bottom:10px;" id="nfc-btn" onclick="startNFC()">
+          📡 เปิดรับบัตร NFC
+        </button>
+        <div id="nfc-status" style="font-size:13px;color:var(--muted);">กดปุ่มแล้วแตะบัตรได้เลยค่ะ</div>
+        <div id="nfc-unsupported" style="display:none;background:var(--orange-light);border-radius:var(--radius-sm);padding:12px;margin-top:10px;font-size:13px;color:var(--orange);">
+          ⚠️ มือถือนี้ไม่รองรับ NFC หรือยังไม่ได้เปิดใช้งาน<br>
+          <span style="font-size:12px;color:var(--muted);">ลอง: Settings → NFC → เปิดใช้งาน</span>
+        </div>
+      </div>
+
+      <div id="nfc-result"></div>
+
+      <!-- Search fallback -->
+      <div style="margin-top:8px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px;text-align:center;">หรือค้นหาด้วยชื่อ / เบอร์</div>
+        <input class="fi" id="qr-search" placeholder="พิมพ์ชื่อหรือเบอร์..." oninput="qrSearch()">
+      </div>
+      <div id="qr-result" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- ── APPOINTMENTS ── -->
+    <div class="page" id="page-appointments">
+      <div class="page-header">
+        <div class="page-title">นัดหมาย / คิว</div>
+        <button class="icon-btn" onclick="openAddAppt()">➕</button>
+      </div>
+      <div class="cal-strip" id="cal-strip"></div>
+      <div id="appt-list"></div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header"><div class="page-title">ตั้งค่า</div></div>
+
+      <div class="setting-group">
+        <div class="setting-item" onclick="openShopEdit()">
+          <span class="setting-icon">🏪</span>
+          <span class="setting-label">ข้อมูลร้าน</span>
+          <span class="setting-value" id="set-shop-preview">Zesty Nail Studio →</span>
+        </div>
+        <div class="setting-item" onclick="goPage2('packages')">
+          <span class="setting-icon">💳</span>
+          <span class="setting-label">จัดการแพ็กเกจ</span>
+          <span class="setting-value" id="set-pkg-count">3 แพ็กเกจ →</span>
+        </div>
+
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-item">
+          <span class="setting-icon">⚠️</span>
+          <span class="setting-label">แจ้งเตือนยอดต่ำกว่า</span>
+          <input type="number" style="width:80px;text-align:right;border:none;font-size:14px;color:var(--muted);font-family:var(--font);background:none;" id="set-lowbal" value="200" onchange="saveLowBal()">
+        </div>
+        <div class="setting-item">
+          <span class="setting-icon">🔗</span>
+          <span class="setting-label">ลิงก์แอป</span>
+          <button onclick="copyLink()" style="border:none;background:var(--orange-light);color:var(--orange);padding:4px 12px;border-radius:20px;font-size:12px;font-family:var(--font);cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:20px;">🏷️</span>
+            <span style="font-size:15px;font-weight:500;">ส่วนลดตามระดับสมาชิก</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">ระบบจะหักส่วนลดอัตโนมัติเมื่อตัดยอด เช่น Platinum 10% จ่าย ฿100 ตัดแค่ ฿90</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-silver">Silver</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-silver" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-gold">Gold</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-gold" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-platinum">Platinum</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-platinum" min="0" max="50" value="10" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-item" onclick="exportData()">
+          <span class="setting-icon">📥</span>
+          <span class="setting-label">Export ข้อมูล JSON</span>
+          <span class="setting-value">→</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB PAGES -->
+    <div class="page" id="page-packages">
+      <div class="page-header">
+        <button class="icon-btn" onclick="goBack()">←</button>
+        <div class="page-title">แพ็กเกจ</div>
+        <button class="icon-btn" onclick="savePackages()">💾</button>
+      </div>
+      <div id="pkg-list-edit"></div>
+      <button class="act-btn act-outline" onclick="addPackage()" style="width:100%;margin-top:8px;">+ เพิ่มแพ็กเกจ</button>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nb-dashboard" onclick="goPage('dashboard')">
+      <span class="nb-icon">🏠</span>หน้าหลัก
+    </button>
+    <button class="nav-btn" id="nb-members" onclick="goPage('members')">
+      <span class="nb-icon">👥</span>สมาชิก
+    </button>
+    <div class="fab-wrap">
+      <button class="fab" onclick="openQuickAction()">＋</button>
+      <span class="fab-label">ด่วน</span>
+    </div>
+    <button class="nav-btn" id="nb-qr" onclick="goPage('qr')">
+      <span class="nb-icon">📡</span>NFC
+    </button>
+    <button class="nav-btn" id="nb-settings" onclick="goPage('settings')">
+      <span class="nb-icon">⚙️</span>ตั้งค่า
+    </button>
+  </nav>
+</div>
+
+<!-- MODALS -->
+
+<!-- Quick Action -->
+<div class="overlay" id="modal-quick">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">จะทำอะไรคะ?</div>
+    <div class="qa-grid">
+      <div class="qa-btn qa-green" onclick="closeModal('modal-quick');openTopupFlow()">
+        <div class="qa-icon">💚</div>
+        <div class="qa-label">เติมเงิน</div>
+        <div class="qa-sub">เพิ่มยอดสมาชิก</div>
+      </div>
+      <div class="qa-btn qa-orange" onclick="closeModal('modal-quick');openDeductFlow()">
+        <div class="qa-icon">🧡</div>
+        <div class="qa-label">ตัดยอด</div>
+        <div class="qa-sub">ใช้บริการ</div>
+      </div>
+      <div class="qa-btn" onclick="closeModal('modal-quick');openAddMember()">
+        <div class="qa-icon">👤</div>
+        <div class="qa-label">เพิ่มสมาชิก</div>
+        <div class="qa-sub">ลงทะเบียนใหม่</div>
+      </div>
+      <div class="qa-btn" onclick="closeModal('modal-quick');openAddAppt()">
+        <div class="qa-icon">📅</div>
+        <div class="qa-label">นัดหมายใหม่</div>
+        <div class="qa-sub">จองคิว</div>
+      </div>
+    </div>
+    <div class="qa-btn" onclick="closeModal('modal-quick');goPage('qr')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+      <div style="font-size:24px;">📡</div>
+      <div><div style="font-size:14px;font-weight:600;">แตะบัตร NFC</div><div style="font-size:12px;color:var(--muted);">ดึงข้อมูลสมาชิก</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Member -->
+<div class="overlay" id="modal-add-member">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">เพิ่มสมาชิกใหม่</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">ชื่อ *</label><input class="fi" id="new-fname" placeholder="มาลี"></div>
+      <div class="fg"><label class="fl">นามสกุล</label><input class="fi" id="new-lname" placeholder="สวยงาม"></div>
+    </div>
+    <div class="fg"><label class="fl">เบอร์โทร</label><input type="tel" class="fi" id="new-phone" placeholder="081-xxx-xxxx"></div>
+    <div class="fg"><label class="fl">แพ็กเกจเริ่มต้น</label>
+      <select class="fi fsel" id="new-pkg"><option value="">ไม่ซื้อตอนนี้</option></select>
+    </div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-add-member')">ยกเลิก</button>
+      <button class="act-btn act-green" style="flex:2;" onclick="saveMember()">✓ บันทึกสมาชิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Member -->
+<div class="overlay" id="modal-edit-member">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">แก้ไขสมาชิก</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">ชื่อ</label><input class="fi" id="edit-fname"></div>
+      <div class="fg"><label class="fl">นามสกุล</label><input class="fi" id="edit-lname"></div>
+    </div>
+    <div class="fg"><label class="fl">เบอร์โทร</label><input type="tel" class="fi" id="edit-phone"></div>
+    <div class="fg"><label class="fl">ระดับ</label>
+      <select class="fi fsel" id="edit-tier">
+        <option value="silver">Silver</option>
+        <option value="gold">Gold</option>
+        <option value="platinum">Platinum</option>
+      </select>
+    </div>
+    <input type="hidden" id="edit-fid">
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="background:#FEE2E2;color:#991B1B;border-color:#FEE2E2;" onclick="deleteMember()">🗑️</button>
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-edit-member')">ยกเลิก</button>
+      <button class="act-btn act-green" style="flex:2;" onclick="saveEdit()">✓ บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Topup Flow -->
+<div class="overlay" id="modal-topup">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">💚 เติมเงิน</div>
+    <div class="fg"><label class="fl">เลือกสมาชิก</label>
+      <select class="fi fsel" id="topup-sel" onchange="updateTopupPreview()"><option value="">— เลือกสมาชิก —</option></select>
+    </div>
+    <div id="topup-preview"></div>
+    <div class="pkg-grid" id="pkg-grid"></div>
+  </div>
+</div>
+
+<!-- Topup Confirm -->
+<div class="overlay" id="modal-topup-confirm">
+  <div class="mbox" style="max-width:100%;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">ยืนยันการเติมเงิน</div>
+    <div id="topup-confirm-body"></div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-topup-confirm')">ยกเลิก</button>
+      <button class="act-btn act-green" style="flex:2;" onclick="doTopup()">💚 ยืนยันเติมเงิน</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deduct Flow -->
+<div class="overlay" id="modal-deduct">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">🧡 ตัดยอดบริการ</div>
+    <div class="fg"><label class="fl">เลือกสมาชิก</label>
+      <select class="fi fsel" id="svc-sel" onchange="updateSvcPreview()"><option value="">— เลือกสมาชิก —</option></select>
+    </div>
+    <div id="svc-preview"></div>
+    <div class="fg"><label class="fl">จำนวนเงิน (บาท) *</label>
+      <input type="number" class="fi" id="custom-price" placeholder="ระบุจำนวนเงิน เช่น 350" inputmode="numeric" style="font-size:18px;font-weight:600;">
+    </div>
+    <div class="fg"><label class="fl">รายละเอียดบริการ (ไม่บังคับ)</label>
+      <input class="fi" id="svc-note" placeholder="เช่น ทำเล็บเจล สีแดง">
+    </div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-deduct')">ยกเลิก</button>
+      <button class="act-btn act-orange" style="flex:2;" onclick="prepareDeduct()">🧡 ตัดยอด →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deduct Confirm -->
+<div class="overlay" id="modal-deduct-confirm">
+  <div class="mbox" style="max-width:100%;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">⚠️ ยืนยันการตัดยอด</div>
+    <div id="deduct-confirm-body"></div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-deduct-confirm');openModal('modal-deduct');">← กลับไปแก้</button>
+      <button class="act-btn act-orange" style="flex:2;" onclick="doDeduct()">✅ ยืนยันตัดยอด</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Appointment -->
+<div class="overlay" id="modal-add-appt">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">📅 นัดหมายใหม่</div>
+    <div class="fg"><label class="fl">สมาชิก</label>
+      <select class="fi fsel" id="appt-member" onchange="toggleWalkin()"><option value="">— เลือกสมาชิก —</option><option value="walk-in">Walk-in</option></select>
+    </div>
+    <div class="fg" id="walkin-grp" style="display:none;"><label class="fl">ชื่อ Walk-in</label><input class="fi" id="appt-walkin"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">วันที่</label><input type="date" class="fi" id="appt-date"></div>
+      <div class="fg"><label class="fl">เวลา</label><input type="time" class="fi" id="appt-time" value="10:00"></div>
+    </div>
+    <div class="fg"><label class="fl">บริการ</label>
+      <select class="fi fsel" id="appt-svc">
+        <option>ทำเล็บธรรมดา</option><option>ทำเล็บเจล</option><option>ต่อเล็บ</option>
+        <option>ทำเล็บอะคริลิค</option><option>ถอดเล็บ</option><option>อื่นๆ</option>
+      </select>
+    </div>
+    <div class="fg"><label class="fl">หมายเหตุ</label><input class="fi" id="appt-note" placeholder="สีที่ต้องการ..."></div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-add-appt')">ยกเลิก</button>
+      <button class="act-btn act-orange" style="flex:2;" onclick="saveAppt()">📅 บันทึกนัดหมาย</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shop Edit -->
+<div class="overlay" id="modal-shop-edit">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle">🏪 ข้อมูลร้าน</div>
+    <div class="fg"><label class="fl">ชื่อร้าน</label><input class="fi" id="set-name" placeholder="Zesty Nail Studio"></div>
+    <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="set-phone" placeholder="081-xxx-xxxx"></div>
+    <div class="fg"><label class="fl">ที่อยู่</label><input class="fi" id="set-addr" placeholder="ที่อยู่ร้าน"></div>
+    <div class="mfoot">
+      <button class="act-btn act-outline" style="flex:1;" onclick="closeModal('modal-shop-edit')">ยกเลิก</button>
+      <button class="act-btn act-green" style="flex:2;" onclick="saveShop()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Detail -->
+<div class="overlay" id="modal-member-detail">
+  <div class="mbox">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div id="member-detail-body"></div>
+    <button class="act-btn act-outline" style="width:100%;margin-top:8px;" onclick="closeModal('modal-member-detail')">ปิด</button>
+  </div>
+</div>
+
+<!-- Member Menu (3-dots) -->
+<div class="overlay" id="modal-member-menu">
+  <div class="mbox" style="max-width:100%;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
+    <div class="mtitle" id="member-menu-name">ตัวเลือกสมาชิก</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="qa-btn" onclick="closeModal('modal-member-menu');showMemberDetailFromMenu()" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left;">
+        <div style="font-size:24px;">👤</div>
+        <div><div style="font-size:14px;font-weight:600;">ดูข้อมูลสมาชิก</div><div style="font-size:12px;color:var(--muted);">ประวัติและรายละเอียด</div></div>
+      </button>
+      <button class="qa-btn" onclick="closeModal('modal-member-menu');showQRCodeFromMenu()" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left;">
+        <div style="font-size:24px;">📱</div>
+        <div><div style="font-size:14px;font-weight:600;">แตะบัตร NFC</div><div style="font-size:12px;color:var(--muted);">ดึงข้อมูลสมาชิก</div></div>
+      </button>
+      <button class="qa-btn" onclick="closeModal('modal-member-menu');openEditFromMenu()" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left;">
+        <div style="font-size:24px;">✏️</div>
+        <div><div style="font-size:14px;font-weight:600;">แก้ไขข้อมูล</div><div style="font-size:12px;color:var(--muted);">ชื่อ เบอร์โทร ระดับ</div></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,collection,doc,onSnapshot,setDoc,updateDoc,addDoc,deleteDoc,serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyD8FSmTxkSyABCrdhgA32-cEjfjSrbzQPM",
+  authDomain:"zesty-nail-studio-v2.firebaseapp.com",
+  projectId:"zesty-nail-studio-v2",
+  storageBucket:"zesty-nail-studio-v2.firebasestorage.app",
+  messagingSenderId:"661427029237",
+  appId:"1:661427029237:web:1da8aeb8f27df2d2be31bc"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+let members=[],appointments=[],PACKAGES=[
+  {id:'silver',name:'Silver',price:500,credit:500,bonus:0,featured:false},
+  {id:'gold',name:'Gold',price:1000,credit:1100,bonus:10,featured:true},
+  {id:'platinum',name:'Platinum',price:2000,credit:2300,bonus:15,featured:false},
+];
+let shop={name:'Zesty Nail Studio',phone:'',addr:'',lowBalance:200,discounts:{silver:0,gold:0,platinum:10}};
+let pendingTopup=null,selectedDate=todayStr(),qrStream=null,prevPage=null;
+
+/* ─ helpers ─ */
+const AVC=['av0','av1','av2','av3','av4'];
+const AVCOL=['#F5EEE8','#E8F5EE','#E8EEF5','#F5F0E8','#EEE8F5'];
+const AVTXT=['#8A6A5A','#5A8A6A','#5A6A8A','#8A7A5A','#6A5A8A'];
+const fmtB=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
+const init=name=>name.replace('คุณ','').trim().charAt(0)||'?';
+const avcol=(i,bg)=>bg?AVCOL[i%AVCOL.length]:AVTXT[i%AVTXT.length];
+const tLabel=t=>t==='silver'?'Silver':t==='gold'?'Gold':'Platinum';
+const tClass=t=>'tier-'+t;
+function getMember(id){return members.find(m=>m.firestoreId===id);}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function today(){
+  const d=new Date();
+  const m=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()];
+  return d.getDate()+' '+m+' '+(d.getFullYear()+543);
+}
+function dayName(str){return['อา','จ','อ','พ','พฤ','ศ','ส'][new Date(str).getDay()];}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showLoading(v){document.getElementById('loading').className=v?'show':'';}
+function setSync(s){const el=document.getElementById('sync-status');if(!el)return;
+  if(s==='ok'){el.className='sync-pill sync-ok';el.textContent='✅ ออนไลน์';}
+  else if(s==='err'){el.className='sync-pill sync-err';el.textContent='❌ ออฟไลน์';}
+  else{el.className='sync-pill sync-load';el.textContent='⏳';}}
+window.openModal=openModal;window.closeModal=closeModal;
+
+/* ─ navigation ─ */
+function goPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const nb=document.getElementById('nb-'+page);if(nb)nb.classList.add('active');
+  stopQR();
+  ({dashboard:renderDashboard,members:renderMembers,qr:renderQR,
+    appointments:renderAppointments,settings:renderSettings})[page]?.();
+}
+function goPage2(page){prevPage='settings';goPage(page);}
+function goBack(){goPage(prevPage||'settings');}
+window.goPage=goPage;window.goPage2=goPage2;window.goBack=goBack;
+
+function applyShop(){
+  const n=shop.name||'Zesty Nail Studio';
+  document.title=n;
+  const el=document.getElementById('dash-shop-name');if(el)el.textContent=n;
+  const sp=document.getElementById('set-shop-preview');if(sp)sp.textContent=n+' →';
+}
+
+/* ─ Firebase listeners ─ */
+onSnapshot(collection(db,'members'),snap=>{
+  members=[];snap.forEach(d=>members.push({firestoreId:d.id,...d.data()}));
+  members.sort((a,b)=>(a.name||'').localeCompare(b.name||'','th'));
+  setSync('ok');
+  const active=document.querySelector('.page.active');
+  if(active){const pid=active.id.replace('page-','');
+    ({dashboard:renderDashboard,members:renderMembers})[pid]?.();}
+  renderLowAlerts();
+},()=>setSync('err'));
+
+onSnapshot(collection(db,'appointments'),snap=>{
+  appointments=[];snap.forEach(d=>appointments.push({firestoreId:d.id,...d.data()}));
+  appointments.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const active=document.querySelector('.page.active');
+  if(active){const pid=active.id.replace('page-','');
+    if(pid==='appointments')renderAppointments();
+    if(pid==='dashboard')renderDashboard();}
+});
+
+onSnapshot(doc(db,'settings','main'),snap=>{
+  if(snap.exists()){const d=snap.data();
+    if(d.shop)Object.assign(shop,d.shop);
+    if(d.packages)PACKAGES=d.packages;
+    applyShop();
+    const lb=document.getElementById('set-lowbal');if(lb&&shop.lowBalance)lb.value=shop.lowBalance;
+  }
+});
+
+/* ─ LOW ALERTS ─ */
+function renderLowAlerts(){
+  const thresh=shop.lowBalance||200;
+  const low=members.filter(m=>(m.balance||0)<thresh);
+  const el=document.getElementById('low-alerts');if(!el)return;
+  el.innerHTML=low.length?low.map(m=>`
+    <div class="alert-card">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text"><div class="alert-name">${m.name}</div><div style="font-size:12px;color:var(--muted);">ยอดเหลือ ${fmtB(m.balance||0)}</div></div>
+      <button class="act-btn act-green" style="padding:8px 14px;font-size:12px;" onclick="quickTopup('${m.firestoreId}')">เติมเงิน</button>
+    </div>`).join(''):'';
+}
+
+/* ─ DASHBOARD ─ */
+function renderDashboard(){
+  const totalBal=members.reduce((s,m)=>s+(m.balance||0),0);
+  const totalV=members.reduce((s,m)=>s+(m.visits||0),0);
+  const todayAppts=appointments.filter(a=>a.date===todayStr());
+  document.getElementById('stat-grid').innerHTML=`
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-val">${members.length}</div>
+      <div class="stat-lbl">สมาชิกทั้งหมด</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <div class="stat-val orange">${todayAppts.length}</div>
+      <div class="stat-lbl">นัดหมายวันนี้</div>
+    </div>
+    <div class="stat-card wide">
+      <div class="stat-icon">💰</div>
+      <div class="stat-val green">${fmtB(totalBal)}</div>
+      <div class="stat-lbl">ยอดเงินรวมในระบบ · ใช้บริการรวม ${totalV} ครั้ง</div>
+    </div>
+  `;
+  const da=document.getElementById('dash-appts');
+  da.innerHTML=todayAppts.length?todayAppts.slice(0,3).map(a=>apptCardHTML(a)).join(''):'<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">ไม่มีนัดหมายวันนี้</div></div>';
+  let all=[];members.forEach(m=>(m.txs||[]).forEach(tx=>all.push({...tx,memberName:m.name})));
+  all=all.slice(0,8);
+  const dr=document.getElementById('dash-recent');
+  dr.innerHTML=all.length?all.map(tx=>txRowHTML(tx)).join(''):'<div class="empty"><div class="empty-icon">🕐</div><div class="empty-text">ยังไม่มีรายการ</div></div>';
+  renderLowAlerts();
+}
+window.renderDashboard=renderDashboard;
+
+function txRowHTML(tx){
+  const isTop=tx.type==='top';
+  const bg=isTop?'background:var(--green-light)':'background:var(--orange-light)';
+  const lbl=isTop?'เติมเงิน '+tx.pkg:tx.service;
+  const amt=isTop?`<span class="tx-amt" style="color:var(--green);">+${fmtB(tx.amount)}</span>`:`<span class="tx-amt" style="color:var(--orange);">-${fmtB(tx.amount)}</span>`;
+  const mn=tx.memberName?`<span style="font-size:11px;color:var(--muted);"> · ${tx.memberName}</span>`:'';
+  return `<div class="tx-row"><div class="tx-dot" style="${bg}">${isTop?'💚':'🧡'}</div><div class="tx-info"><div class="tx-name">${lbl}${mn}</div><div class="tx-date">${tx.date}</div></div>${amt}</div>`;
+}
+
+function apptCardHTML(a){
+  const stMap={waiting:'st-waiting',confirmed:'st-confirmed',done:'st-done',cancel:'st-cancel'};
+  const stLbl={waiting:'รอ',confirmed:'ยืนยัน',done:'เสร็จ',cancel:'ยกเลิก'};
+  const st=a.status||'waiting';
+  return `<div class="appt-card">
+    <div class="appt-time-block"><div class="appt-hour">${a.time}</div></div>
+    <div class="appt-info">
+      <div class="appt-name">${a.memberName||a.walkinName||'Walk-in'}</div>
+      <div class="appt-svc">${a.service}${a.note?' · '+a.note:''}</div>
+      <div class="appt-actions">
+        ${st!=='confirmed'&&st!=='done'?`<button class="appt-act" style="background:var(--green-light);color:#1A7A3A;" onclick="updateApptStatus('${a.firestoreId}','confirmed')">✅ ยืนยัน</button>`:''}
+        ${st!=='done'?`<button class="appt-act" style="background:var(--border);color:var(--muted);" onclick="updateApptStatus('${a.firestoreId}','done')">✔ เสร็จ</button>`:''}
+        <button class="appt-act" style="background:#FEE2E2;color:#991B1B;" onclick="deleteAppt('${a.firestoreId}')">🗑️</button>
+      </div>
+    </div>
+    <span class="appt-badge ${stMap[st]}">${stLbl[st]}</span>
+  </div>`;
+}
+
+/* ─ MEMBERS ─ */
+function renderMembers(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  const f=members.filter(m=>m.name?.toLowerCase().includes(q)||m.phone?.includes(q));
+  const el=document.getElementById('members-list');
+  el.innerHTML=f.length?f.map((m,i)=>{
+    const low=(m.balance||0)<(shop.lowBalance||200);
+    return `<div class="member-card">
+      <div class="mc-avatar" style="background:${avcol(i,true)};color:${avcol(i,false)};">${init(m.name)}</div>
+      <div class="mc-info" onclick="showMemberDetail('${m.firestoreId}')">
+        <div class="mc-name">${m.name}</div>
+        <div class="mc-sub">${m.phone||''} · ${m.visits||0} ครั้ง · <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span></div>
+        <div class="mc-actions">
+          <button class="act-btn act-green" onclick="event.stopPropagation();quickTopup('${m.firestoreId}')">💚 เติมเงิน</button>
+          <button class="act-btn act-orange" onclick="event.stopPropagation();quickDeduct('${m.firestoreId}')">🧡 ตัดยอด</button>
+          <button class="act-btn act-ghost" style="flex:0;padding:10px 14px;" onclick="event.stopPropagation();openMemberMenu('${m.firestoreId}')">⋯</button>
+        </div>
+      </div>
+      <div class="mc-balance">
+        <div class="mc-amount ${low?'red':'green'}">${fmtB(m.balance||0)}</div>
+        <div class="mc-tier">${low?'⚠️ ยอดต่ำ':'ยอดคงเหลือ'}</div>
+      </div>
+    </div>`;
+  }).join(''):`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">ไม่พบสมาชิก</div><button class="act-btn act-green" onclick="openAddMember()" style="margin:0 auto;">+ เพิ่มสมาชิก</button></div>`;
+}
+window.renderMembers=renderMembers;
+
+function openAddMember(){
+  ['new-fname','new-lname','new-phone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-pkg').innerHTML='<option value="">ไม่ซื้อตอนนี้</option>'+
+    PACKAGES.map(p=>`<option value="${p.id}">${p.name} — ${fmtB(p.price)} (ได้ ${fmtB(p.credit)})</option>`).join('');
+  openModal('modal-add-member');
+}
+window.openAddMember=openAddMember;
+
+async function saveMember(){
+  const fn=document.getElementById('new-fname').value.trim();
+  if(!fn){showToast('กรุณากรอกชื่อ');return;}
+  const ln=document.getElementById('new-lname').value.trim();
+  const name='คุณ'+fn+(ln?' '+ln:'');
+  const phone=document.getElementById('new-phone').value.trim()||'-';
+  const pkgId=document.getElementById('new-pkg').value;
+  const pkg=PACKAGES.find(p=>p.id===pkgId);
+  let balance=0,tier='silver',txs=[];
+  if(pkg){balance=pkg.credit;tier=pkg.id;txs=[{type:'top',pkg:pkg.name,amount:pkg.credit,date:today()}];}
+  const d=new Date();
+  const mo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()];
+  showLoading(true);
+  try{
+    await addDoc(collection(db,'members'),{name,phone,balance,tier,visits:0,joined:mo+' '+(d.getFullYear()+543),txs,createdAt:serverTimestamp()});
+    closeModal('modal-add-member');showToast('เพิ่ม '+name+' แล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.saveMember=saveMember;
+
+function openEdit(fid){
+  const m=getMember(fid);if(!m)return;
+  const parts=m.name.replace('คุณ','').trim().split(' ');
+  document.getElementById('edit-fname').value=parts[0]||'';
+  document.getElementById('edit-lname').value=parts.slice(1).join(' ')||'';
+  document.getElementById('edit-phone').value=m.phone||'';
+  document.getElementById('edit-tier').value=m.tier||'silver';
+  document.getElementById('edit-fid').value=fid;
+  openModal('modal-edit-member');
+}
+window.openEdit=openEdit;
+
+async function saveEdit(){
+  const fid=document.getElementById('edit-fid').value;
+  const fn=document.getElementById('edit-fname').value.trim();
+  if(!fn){showToast('กรุณากรอกชื่อ');return;}
+  const ln=document.getElementById('edit-lname').value.trim();
+  const name='คุณ'+fn+(ln?' '+ln:'');
+  const phone=document.getElementById('edit-phone').value.trim()||'-';
+  const tier=document.getElementById('edit-tier').value;
+  showLoading(true);
+  try{
+    await updateDoc(doc(db,'members',fid),{name,phone,tier});
+    closeModal('modal-edit-member');showToast('แก้ไขแล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.saveEdit=saveEdit;
+
+async function deleteMember(){
+  const fid=document.getElementById('edit-fid').value;
+  const m=getMember(fid);
+  if(!confirm('ยืนยันลบ "'+m?.name+'"?'))return;
+  showLoading(true);
+  try{await deleteDoc(doc(db,'members',fid));closeModal('modal-edit-member');showToast('ลบแล้ว');}
+  catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.deleteMember=deleteMember;
+
+function showMemberDetail(fid){
+  const m=getMember(fid);if(!m)return;
+  const i=members.indexOf(m);
+  document.getElementById('member-detail-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="width:64px;height:64px;border-radius:20px;background:${avcol(i,true)};color:${avcol(i,false)};display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin:0 auto 10px;">${init(m.name)}</div>
+      <div style="font-size:20px;font-weight:700;">${m.name}</div>
+      <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span>
+    </div>
+    <div style="background:var(--green-light);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:32px;font-weight:700;color:var(--green);">${fmtB(m.balance||0)}</div>
+      <div style="font-size:12px;color:var(--muted);">ยอดคงเหลือ</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center;">
+      <div style="background:var(--bg);border-radius:var(--radius-xs);padding:10px;"><div style="font-size:16px;font-weight:700;">${m.visits||0}</div><div style="font-size:11px;color:var(--muted);">ครั้ง</div></div>
+      <div style="background:var(--bg);border-radius:var(--radius-xs);padding:10px;"><div style="font-size:13px;font-weight:600;">${m.joined}</div><div style="font-size:11px;color:var(--muted);">สมาชิกตั้งแต่</div></div>
+      <div style="background:var(--bg);border-radius:var(--radius-xs);padding:10px;"><div style="font-size:13px;font-weight:600;">${m.phone||'-'}</div><div style="font-size:11px;color:var(--muted);">เบอร์โทร</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <button class="act-btn act-green" onclick="closeModal('modal-member-detail');quickTopup('${m.firestoreId}')">💚 เติมเงิน</button>
+      <button class="act-btn act-orange" onclick="closeModal('modal-member-detail');quickDeduct('${m.firestoreId}')">🧡 ตัดยอด</button>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:8px;">ประวัติล่าสุด</div>
+    <div style="background:var(--white);border-radius:var(--radius-sm);padding:4px 12px;">
+      ${(m.txs||[]).slice(0,5).map(tx=>txRowHTML(tx)).join('')||'<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">ยังไม่มีรายการ</div>'}
+    </div>
+  `;
+  openModal('modal-member-detail');
+}
+window.showMemberDetail=showMemberDetail;
+
+function showQRCode(fid){
+  const m=getMember(fid);if(!m)return;
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent('nail:'+fid)}&bgcolor=ffffff&color=1a1a1a`;
+  document.getElementById('member-detail-body').innerHTML=`
+    <div style="text-align:center;padding:8px 0;">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px;">${m.name}</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:20px;">บัตรสมาชิก QR Code</div>
+      <img src="${qrUrl}" style="width:220px;height:220px;border-radius:16px;border:1px solid var(--border);">
+      <div style="margin-top:16px;background:var(--green-light);border-radius:var(--radius-sm);padding:14px;">
+        <div style="font-size:28px;font-weight:700;color:var(--green);">${fmtB(m.balance||0)}</div>
+        <div style="font-size:12px;color:var(--muted);">ยอดคงเหลือ · ${tLabel(m.tier)}</div>
+      </div>
+    </div>
+  `;
+  openModal('modal-member-detail');
+}
+window.showQRCode=showQRCode;
+
+/* ─ TOPUP ─ */
+function openTopupFlow(){
+  populateMemberSelects();
+  document.getElementById('topup-preview').innerHTML='';
+  document.getElementById('pkg-grid').innerHTML=PACKAGES.map(p=>`
+    <div class="pkg-card ${p.featured?'feat':''}" onclick="selectPkg('${p.id}')">
+      ${p.featured?'<div class="pkg-rec">แนะนำ</div>':''}
+      <div class="pkg-name">${p.name}</div>
+      <div class="pkg-price">${fmtB(p.price)}</div>
+      <div class="pkg-credit">ได้ ${fmtB(p.credit)}</div>
+      ${p.bonus?`<div class="pkg-bonus">+${p.bonus}% โบนัส</div>`:''}
+    </div>
+  `).join('');
+  openModal('modal-topup');
+}
+window.openTopupFlow=openTopupFlow;
+
+function updateTopupPreview(){
+  const id=document.getElementById('topup-sel').value;
+  const prev=document.getElementById('topup-preview');
+  if(!id){prev.innerHTML='';return;}
+  const m=getMember(id);
+  prev.innerHTML=`<div class="info-box ib-green"><b>${m.name}</b> · ยอดปัจจุบัน <b style="color:var(--green);">${fmtB(m.balance||0)}</b> · ${tLabel(m.tier)}</div>`;
+}
+window.updateTopupPreview=updateTopupPreview;
+
+function selectPkg(pkgId){
+  const memberId=document.getElementById('topup-sel').value;
+  if(!memberId){showToast('กรุณาเลือกสมาชิกก่อน');return;}
+  const m=getMember(memberId);const pkg=PACKAGES.find(p=>p.id===pkgId);
+  pendingTopup={firestoreId:memberId,pkg};
+  document.getElementById('topup-confirm-body').innerHTML=`
+    <div class="info-box ib-green" style="margin-bottom:14px;"><b>${m.name}</b></div>
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px;">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:var(--muted);">แพ็กเกจ</span><b>${pkg.name}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:var(--muted);">ราคา</span><b>${fmtB(pkg.price)}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);margin-top:4px;"><span style="color:var(--muted);">ได้รับเครดิต</span><b style="color:var(--green);font-size:18px;">+${fmtB(pkg.credit)}</b></div>
+    </div>
+  `;
+  closeModal('modal-topup');
+  openModal('modal-topup-confirm');
+}
+window.selectPkg=selectPkg;
+
+async function doTopup(){
+  if(!pendingTopup)return;
+  const m=getMember(pendingTopup.firestoreId);const pkg=pendingTopup.pkg;
+  const newBal=(m.balance||0)+pkg.credit;
+  const newTxs=[{type:'top',pkg:pkg.name,amount:pkg.credit,date:today()},...(m.txs||[])];
+  let newTier=m.tier;
+  if(pkg.id==='platinum')newTier='platinum';
+  else if(pkg.id==='gold'&&m.tier==='silver')newTier='gold';
+  showLoading(true);
+  try{
+    await updateDoc(doc(db,'members',m.firestoreId),{balance:newBal,tier:newTier,txs:newTxs});
+    closeModal('modal-topup-confirm');showToast('💚 เติมเงิน '+fmtB(pkg.credit)+' ให้ '+m.name+' แล้ว');
+    pendingTopup=null;
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.doTopup=doTopup;
+
+/* ─ DEDUCT ─ */
+function openDeductFlow(){populateMemberSelects();document.getElementById('svc-preview').innerHTML='';openModal('modal-deduct');}
+window.openDeductFlow=openDeductFlow;
+
+function updateSvcPreview(){
+  const id=document.getElementById('svc-sel').value;
+  const prev=document.getElementById('svc-preview');
+  if(!id){prev.innerHTML='';return;}
+  const m=getMember(id);
+  const low=(m.balance||0)<(shop.lowBalance||200);
+  prev.innerHTML=`<div class="info-box ${low?'ib-orange':'ib-green'}"><b>${m.name}</b> · ยอดคงเหลือ <b style="color:${low?'var(--orange)':'var(--green)'};">${fmtB(m.balance||0)}</b>${low?' ⚠️':''}</div>`;
+}
+window.updateSvcPreview=updateSvcPreview;
+
+function toggleCustom(){
+  document.getElementById('custom-grp').style.display=document.getElementById('svc-type').value==='custom'?'block':'none';
+}
+window.toggleCustom=toggleCustom;
+
+async function doDeduct(){
+  const memberId=document.getElementById('svc-sel').value;
+  if(!memberId){showToast('กรุณาเลือกสมาชิก');return;}
+  const m=getMember(memberId);
+  const amt=parseInt(document.getElementById('custom-price').value)||0;
+  if(!amt||amt<=0){showToast('กรุณาระบุจำนวนเงิน');return;}
+  const note=document.getElementById('svc-note').value.trim();
+  const svc=note||'บริการ';
+
+  // คำนวณส่วนลด
+  const discPct=(shop.discounts||{})[m.tier||'silver']||0;
+  const discAmt=Math.floor(amt*discPct/100);
+  const finalAmt=amt-discAmt;
+
+  showLoading(true);
+  try{
+    await updateDoc(doc(db,'members',m.firestoreId),{
+      balance:(m.balance||0)-finalAmt,
+      visits:(m.visits||0)+1,
+      txs:[{
+        type:'use',
+        service:svc,
+        amount:finalAmt,
+        originalAmount:amt,
+        discount:discPct,
+        discountAmt:discAmt,
+        date:today()
+      },...(m.txs||[])]
+    });
+    closeModal('modal-deduct-confirm');closeModal('modal-deduct');
+    showToast('🧡 ตัดยอด '+fmtB(finalAmt)+(discPct>0?' (ลด '+discPct+'%)':'')+' แล้ว');
+    document.getElementById('svc-note').value='';
+    document.getElementById('custom-price').value='';
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.doDeduct=doDeduct;
+
+function prepareDeduct(){
+  const memberId=document.getElementById('svc-sel').value;
+  if(!memberId){showToast('กรุณาเลือกสมาชิก');return;}
+  const m=getMember(memberId);
+  const amt=parseInt(document.getElementById('custom-price').value)||0;
+  if(!amt||amt<=0){showToast('กรุณาระบุจำนวนเงิน');return;}
+  const balance=m.balance||0;
+  if(balance<amt){showToast('⚠️ ยอดไม่พอ คงเหลือ '+fmtB(balance));return;}
+  const note=document.getElementById('svc-note').value.trim();
+  const svc=note||'บริการ';
+
+  // คำนวณส่วนลดตาม tier
+  const discPct=(shop.discounts||{})[m.tier||'silver']||0;
+  const discAmt=Math.floor(amt*discPct/100);
+  const finalAmt=amt-discAmt;
+
+  const remaining=balance-finalAmt;
+  const willBeLow=remaining<(shop.lowBalance||200);
+  document.getElementById('deduct-confirm-body').innerHTML=`
+    <div class="info-box ib-orange" style="margin-bottom:14px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:2px;">สมาชิก</div>
+      <div style="font-size:16px;font-weight:600;">${m.name} · <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span></div>
+    </div>
+    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">บริการ</span><b>${svc}</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">ราคาเต็ม</span><b>${fmtB(amt)}</b>
+      </div>
+      ${discPct>0?`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--green);">ส่วนลด ${discPct}% (${tLabel(m.tier)})</span>
+        <b style="color:var(--green);">- ${fmtB(discAmt)}</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">ราคาหลังลด</span><b style="color:var(--orange);font-size:18px;">${fmtB(finalAmt)}</b>
+      </div>`:`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">จำนวนที่ตัด</span><b style="color:var(--orange);font-size:18px;">- ${fmtB(finalAmt)}</b>
+      </div>`}
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">ยอดก่อนตัด</span><b>${fmtB(balance)}</b>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0 4px;align-items:center;">
+        <span style="color:var(--muted);font-weight:600;">ยอดคงเหลือ</span>
+        <b style="color:${willBeLow?'#E24B4A':'var(--green)'};font-size:22px;">${fmtB(remaining)}</b>
+      </div>
+    </div>
+    ${willBeLow?'<div class="info-box ib-orange" style="font-size:13px;">⚠️ ยอดเงินจะต่ำกว่าเกณฑ์ ('+fmtB(shop.lowBalance||200)+') หลังตัดยอด</div>':''}
+  `;
+  closeModal('modal-deduct');
+  openModal('modal-deduct-confirm');
+}
+window.prepareDeduct=prepareDeduct;
+
+/* ─ MEMBER MENU ─ */
+let menuMemberId=null;
+function openMemberMenu(fid){
+  menuMemberId=fid;
+  const m=getMember(fid);
+  document.getElementById('member-menu-name').textContent=m?m.name:'ตัวเลือก';
+  openModal('modal-member-menu');
+}
+window.openMemberMenu=openMemberMenu;
+function showMemberDetailFromMenu(){if(menuMemberId)showMemberDetail(menuMemberId);}
+function showQRCodeFromMenu(){if(menuMemberId)showQRCode(menuMemberId);}
+function openEditFromMenu(){if(menuMemberId)openEdit(menuMemberId);}
+window.showMemberDetailFromMenu=showMemberDetailFromMenu;
+window.showQRCodeFromMenu=showQRCodeFromMenu;
+window.openEditFromMenu=openEditFromMenu;
+
+function populateMemberSelects(){
+  ['topup-sel','svc-sel'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='<option value="">— เลือกสมาชิก —</option>'+
+      members.map(m=>`<option value="${m.firestoreId}">${m.name} (${fmtB(m.balance||0)})</option>`).join('');
+  });
+}
+
+function quickTopup(id){populateMemberSelects();document.getElementById('topup-sel').value=id;updateTopupPreview();
+  document.getElementById('pkg-grid').innerHTML=PACKAGES.map(p=>`
+    <div class="pkg-card ${p.featured?'feat':''}" onclick="selectPkg('${p.id}')">
+      ${p.featured?'<div class="pkg-rec">แนะนำ</div>':''}
+      <div class="pkg-name">${p.name}</div>
+      <div class="pkg-price">${fmtB(p.price)}</div>
+      <div class="pkg-credit">ได้ ${fmtB(p.credit)}</div>
+      ${p.bonus?`<div class="pkg-bonus">+${p.bonus}% โบนัส</div>`:''}
+    </div>
+  `).join('');
+  openModal('modal-topup');
+}
+function quickDeduct(id){populateMemberSelects();document.getElementById('svc-sel').value=id;updateSvcPreview();openModal('modal-deduct');}
+window.quickTopup=quickTopup;window.quickDeduct=quickDeduct;
+
+/* ─ QR ─ */
+function renderQR(){document.getElementById('qr-result').innerHTML='';document.getElementById('qr-search').value='';}
+window.renderQR=renderQR;
+
+async function startQR(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    qrStream=stream;document.getElementById('qr-video').srcObject=stream;
+    showToast('กล้องเปิดแล้ว — นำ QR ไปใกล้กล้อง');
+    if('BarcodeDetector' in window){
+      const detector=new BarcodeDetector({formats:['qr_code']});
+      const scan=async()=>{
+        if(!qrStream)return;
+        try{const codes=await detector.detect(document.getElementById('qr-video'));
+          if(codes.length>0){handleQR(codes[0].rawValue);stopQR();return;}}
+        catch(e){}
+        if(qrStream)setTimeout(scan,300);
+      };
+      document.getElementById('qr-video').onloadedmetadata=()=>scan();
+    }
+  }catch(e){showToast('ไม่สามารถเปิดกล้อง: '+e.message);}
+}
+window.startQR=startQR;
+
+function stopQR(){if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}}
+window.stopQR=stopQR;
+
+function handleQR(val){
+  let fid=val.startsWith('nail:')?val.replace('nail:',''):val;
+  const m=getMember(fid);
+  if(m)showQRResult(m);
+  else document.getElementById('qr-result').innerHTML=`<div class="info-box ib-orange">⚠️ ไม่พบสมาชิก</div>`;
+}
+
+function showQRResult(m){
+  const i=members.indexOf(m);
+  document.getElementById('qr-result').innerHTML=`
+    <div class="member-card">
+      <div class="mc-avatar" style="background:${avcol(i,true)};color:${avcol(i,false)};">${init(m.name)}</div>
+      <div class="mc-info">
+        <div class="mc-name">${m.name}</div>
+        <div class="mc-sub"><span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span> · ${m.visits||0} ครั้ง</div>
+        <div class="mc-actions">
+          <button class="act-btn act-green" onclick="quickTopup('${m.firestoreId}')">💚 เติมเงิน</button>
+          <button class="act-btn act-orange" onclick="quickDeduct('${m.firestoreId}')">🧡 ตัดยอด</button>
+        </div>
+      </div>
+      <div class="mc-balance"><div class="mc-amount green">${fmtB(m.balance||0)}</div></div>
+    </div>`;
+}
+window.showQRResult=showQRResult;
+
+function qrSearch(){
+  const q=document.getElementById('qr-search').value.trim().toLowerCase();
+  if(!q){document.getElementById('qr-result').innerHTML='';return;}
+  const f=members.filter(m=>m.name?.toLowerCase().includes(q)||m.phone?.includes(q));
+  if(!f.length){document.getElementById('qr-result').innerHTML='<div class="info-box ib-orange">ไม่พบสมาชิก</div>';return;}
+  document.getElementById('qr-result').innerHTML=f.map((m,i)=>`
+    <div class="member-card" onclick="showQRResult2('${m.firestoreId}')">
+      <div class="mc-avatar" style="background:${avcol(i,true)};color:${avcol(i,false)};">${init(m.name)}</div>
+      <div class="mc-info"><div class="mc-name">${m.name}</div><div class="mc-sub">${m.phone||''}</div></div>
+      <div class="mc-balance"><div class="mc-amount green">${fmtB(m.balance||0)}</div></div>
+    </div>`).join('');
+}
+window.qrSearch=qrSearch;
+
+function showQRResult2(fid){const m=getMember(fid);if(m)showQRResult(m);}
+window.showQRResult2=showQRResult2;
+
+/* ─ NFC ─ */
+let nfcReader=null;
+
+async function startNFC(){
+  const btn=document.getElementById('nfc-btn');
+  const status=document.getElementById('nfc-status');
+  const unsupported=document.getElementById('nfc-unsupported');
+
+  // เช็คว่ารองรับ NFC ไหม
+  if(!('NDEFReader' in window)){
+    unsupported.style.display='block';
+    status.textContent='';
+    return;
+  }
+
+  try{
+    nfcReader=new NDEFReader();
+    await nfcReader.scan();
+
+    btn.style.background='var(--green)';
+    btn.textContent='📡 รอรับบัตร NFC... (แตะบัตรได้เลย)';
+    status.textContent='';
+    showToast('พร้อมรับบัตร NFC แล้วค่ะ — แตะบัตรกับมือถือได้เลย');
+
+    nfcReader.addEventListener('reading',({message,serialNumber})=>{
+      // อ่านค่าจากบัตร
+      let memberId='';
+      for(const record of message.records){
+        if(record.recordType==='text'){
+          const decoder=new TextDecoder(record.encoding||'utf-8');
+          const text=decoder.decode(record.data);
+          if(text.startsWith('nail:'))memberId=text.replace('nail:','');
+          else memberId=text;
+        } else if(record.recordType==='url'){
+          const decoder=new TextDecoder();
+          const url=decoder.decode(record.data);
+          const match=url.match(/nail:([^&?/]+)/);
+          if(match)memberId=match[1];
+        }
+      }
+      // ถ้าไม่มีข้อมูลใน record ใช้ serial number แทน
+      if(!memberId)memberId=serialNumber.replace(/:/g,'').toLowerCase();
+
+      btn.textContent='📡 เปิดรับบัตร NFC';
+      btn.style.background='';
+
+      const m=getMember(memberId);
+      if(m){
+        showToast('พบสมาชิก: '+m.name+' ✓');
+        document.getElementById('nfc-result').innerHTML='';
+        showQRResult(m);
+      } else {
+        // ลองหาจาก serial number ที่บันทึกไว้
+        const bySerial=members.find(mem=>mem.nfcSerial===serialNumber);
+        if(bySerial){
+          showToast('พบสมาชิก: '+bySerial.name+' ✓');
+          showQRResult(bySerial);
+        } else {
+          document.getElementById('nfc-result').innerHTML=`
+            <div class="info-box ib-orange" style="margin-top:10px;">
+              ⚠️ ไม่พบสมาชิกในระบบ<br>
+              <span style="font-size:12px;">Serial: ${serialNumber}</span><br>
+              <div style="margin-top:8px;font-size:13px;">ต้องการลงทะเบียนบัตรนี้ให้สมาชิกไหมคะ?</div>
+              <select class="fi fsel" id="nfc-assign-sel" style="margin-top:8px;">
+                <option value="">— เลือกสมาชิก —</option>
+                ${members.map(mem=>`<option value="${mem.firestoreId}">${mem.name}</option>`).join('')}
+              </select>
+              <button class="act-btn act-green" style="width:100%;margin-top:8px;" onclick="assignNFC('${serialNumber}')">✓ ลงทะเบียนบัตรนี้</button>
+            </div>`;
+        }
+      }
+    });
+
+    nfcReader.addEventListener('readingerror',()=>{
+      showToast('❌ อ่านบัตรไม่ได้ ลองใหม่อีกครั้งค่ะ');
+    });
+
+  } catch(e){
+    btn.textContent='📡 เปิดรับบัตร NFC';
+    btn.style.background='';
+    if(e.name==='NotAllowedError'){
+      showToast('กรุณาอนุญาตการใช้ NFC ค่ะ');
+    } else {
+      unsupported.style.display='block';
+    }
+  }
+}
+window.startNFC=startNFC;
+
+async function assignNFC(serial){
+  const memberId=document.getElementById('nfc-assign-sel')?.value;
+  if(!memberId){showToast('กรุณาเลือกสมาชิก');return;}
+  const m=getMember(memberId);
+  showLoading(true);
+  try{
+    await updateDoc(doc(db,'members',memberId),{nfcSerial:serial});
+    document.getElementById('nfc-result').innerHTML='';
+    showToast('ลงทะเบียนบัตร NFC ให้ '+m.name+' แล้ว ✓');
+    showQRResult(m);
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.assignNFC=assignNFC;
+
+/* ─ APPOINTMENTS ─ */
+function renderAppointments(){buildCal();renderApptList();}
+window.renderAppointments=renderAppointments;
+
+function buildCal(){
+  const strip=document.getElementById('cal-strip');if(!strip)return;
+  const days=[];const base=new Date();
+  for(let i=-1;i<=14;i++){const d=new Date(base);d.setDate(base.getDate()+i);days.push(d.toISOString().slice(0,10));}
+  const hasAppt=new Set(appointments.map(a=>a.date));
+  strip.innerHTML=days.map(d=>`
+    <div class="cal-day ${d===selectedDate?'active':''} ${hasAppt.has(d)&&d!==selectedDate?'has-appt':''}" onclick="selectDay('${d}')">
+      <div class="cal-date">${new Date(d).getDate()}</div>
+      <div class="cal-name">${dayName(d)}</div>
+    </div>`).join('');
+  setTimeout(()=>{const active=strip.querySelector('.cal-day.active');if(active)active.scrollIntoView({inline:'center',behavior:'smooth'});},100);
+}
+
+function selectDay(d){selectedDate=d;buildCal();renderApptList();}
+window.selectDay=selectDay;
+
+function renderApptList(){
+  const list=appointments.filter(a=>a.date===selectedDate);
+  const el=document.getElementById('appt-list');if(!el)return;
+  if(!list.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">ไม่มีนัดหมายวันนี้</div><button class="act-btn act-orange" onclick="openAddAppt()" style="margin:0 auto;">+ นัดหมายใหม่</button></div>`;
+    return;
+  }
+  el.innerHTML=list.map(a=>apptCardHTML(a)).join('');
+}
+
+function openAddAppt(){
+  const sel=document.getElementById('appt-member');
+  sel.innerHTML='<option value="">— เลือกสมาชิก —</option><option value="walk-in">Walk-in</option>'+
+    members.map(m=>`<option value="${m.firestoreId}">${m.name}</option>`).join('');
+  document.getElementById('appt-date').value=selectedDate;
+  document.getElementById('appt-note').value='';
+  document.getElementById('walkin-grp').style.display='none';
+  openModal('modal-add-appt');
+}
+window.openAddAppt=openAddAppt;
+
+function toggleWalkin(){
+  document.getElementById('walkin-grp').style.display=document.getElementById('appt-member').value==='walk-in'?'block':'none';
+}
+window.toggleWalkin=toggleWalkin;
+
+async function saveAppt(){
+  const memberId=document.getElementById('appt-member').value;
+  const date=document.getElementById('appt-date').value;
+  const time=document.getElementById('appt-time').value;
+  const service=document.getElementById('appt-svc').value;
+  const note=document.getElementById('appt-note').value.trim();
+  if(!date||!time){showToast('กรุณาเลือกวันและเวลา');return;}
+  let memberName='',walkinName='';
+  if(memberId==='walk-in')walkinName=document.getElementById('appt-walkin').value.trim()||'Walk-in';
+  else if(memberId)memberName=getMember(memberId)?.name||'';
+  showLoading(true);
+  try{
+    await addDoc(collection(db,'appointments'),{memberId:memberId||'',memberName,walkinName,date,time,service,note,status:'waiting',createdAt:serverTimestamp()});
+    closeModal('modal-add-appt');selectedDate=date;showToast('📅 บันทึกนัดหมายแล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.saveAppt=saveAppt;
+
+async function updateApptStatus(fid,status){
+  try{await updateDoc(doc(db,'appointments',fid),{status});showToast('อัปเดตแล้ว ✓');}
+  catch(e){showToast('❌ '+e.message);}
+}
+window.updateApptStatus=updateApptStatus;
+
+async function deleteAppt(fid){
+  if(!confirm('ลบนัดหมายนี้?'))return;
+  try{await deleteDoc(doc(db,'appointments',fid));showToast('ลบแล้ว');}
+  catch(e){showToast('❌ '+e.message);}
+}
+window.deleteAppt=deleteAppt;
+
+/* ─ SETTINGS ─ */
+function renderSettings(){
+  document.getElementById('set-shop-preview').textContent=(shop.name||'Zesty Nail Studio')+' →';
+  document.getElementById('set-pkg-count').textContent=PACKAGES.length+' แพ็กเกจ →';
+  if(shop.lowBalance)document.getElementById('set-lowbal').value=shop.lowBalance;
+  const d=shop.discounts||{silver:0,gold:0,platinum:10};
+  const ds=document.getElementById('disc-silver');if(ds)ds.value=d.silver||0;
+  const dg=document.getElementById('disc-gold');if(dg)dg.value=d.gold||0;
+  const dp=document.getElementById('disc-platinum');if(dp)dp.value=d.platinum||0;
+}
+window.renderSettings=renderSettings;
+
+function openShopEdit(){
+  document.getElementById('set-name').value=shop.name||'';
+  document.getElementById('set-phone').value=shop.phone||'';
+  document.getElementById('set-addr').value=shop.addr||'';
+  openModal('modal-shop-edit');
+}
+window.openShopEdit=openShopEdit;
+
+async function saveShop(){
+  shop.name=document.getElementById('set-name').value.trim()||'Zesty Nail Studio';
+  shop.phone=document.getElementById('set-phone').value.trim();
+  shop.addr=document.getElementById('set-addr').value.trim();
+  showLoading(true);
+  try{
+    await setDoc(doc(db,'settings','main'),{shop,packages:PACKAGES},{merge:true});
+    applyShop();closeModal('modal-shop-edit');showToast('บันทึกแล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.saveShop=saveShop;
+
+async function saveLowBal(){
+  shop.lowBalance=parseInt(document.getElementById('set-lowbal').value)||200;
+  try{await setDoc(doc(db,'settings','main'),{shop},{merge:true});}catch(e){}
+}
+window.saveLowBal=saveLowBal;
+
+async function saveDiscounts(){
+  shop.discounts={
+    silver:parseInt(document.getElementById('disc-silver')?.value)||0,
+    gold:parseInt(document.getElementById('disc-gold')?.value)||0,
+    platinum:parseInt(document.getElementById('disc-platinum')?.value)||0,
+  };
+  try{
+    await setDoc(doc(db,'settings','main'),{shop},{merge:true});
+    showToast('บันทึกส่วนลดแล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+}
+window.saveDiscounts=saveDiscounts;
+
+function renderPackagesEdit(){
+  document.getElementById('pkg-list-edit').innerHTML=PACKAGES.map((p,i)=>`
+    <div style="background:var(--white);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);">
+      <input class="fi" value="${p.name}" onchange="PACKAGES[${i}].name=this.value" style="margin-bottom:8px;font-weight:600;" placeholder="ชื่อ">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div><label class="fl">ราคา</label><input type="number" class="fi" value="${p.price}" onchange="PACKAGES[${i}].price=+this.value" placeholder="ราคา"></div>
+        <div><label class="fl">เครดิต</label><input type="number" class="fi" value="${p.credit}" onchange="PACKAGES[${i}].credit=+this.value" placeholder="เครดิต"></div>
+        <div><label class="fl">โบนัส%</label><input type="number" class="fi" value="${p.bonus}" onchange="PACKAGES[${i}].bonus=+this.value" placeholder="%"></div>
+      </div>
+      <button class="act-btn act-outline" style="width:100%;margin-top:8px;background:#FEE2E2;color:#991B1B;border-color:#FEE2E2;" onclick="removePkg(${i})">🗑️ ลบแพ็กเกจนี้</button>
+    </div>`).join('');
+}
+
+function addPackage(){PACKAGES.push({id:'pkg'+Date.now(),name:'แพ็กเกจใหม่',price:500,credit:500,bonus:0,featured:false});renderPackagesEdit();}
+window.addPackage=addPackage;
+function removePkg(i){if(PACKAGES.length<=1){showToast('ต้องมีอย่างน้อย 1');return;}PACKAGES.splice(i,1);renderPackagesEdit();}
+window.removePkg=removePkg;
+
+async function savePackages(){
+  showLoading(true);
+  try{await setDoc(doc(db,'settings','main'),{packages:PACKAGES},{merge:true});showToast('บันทึกแพ็กเกจแล้ว ✓');}
+  catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.savePackages=savePackages;
+
+function copyLink(){navigator.clipboard.writeText(window.location.href).then(()=>showToast('Copy ลิงก์แล้ว ✓'));}
+window.copyLink=copyLink;
+
+function exportData(){
+  const data={shop,members,appointments,exported:today()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='zesty-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  showToast('Export แล้ว ✓');
+}
+window.exportData=exportData;
+
+function openQuickAction(){openModal('modal-quick');}
+window.openQuickAction=openQuickAction;
+
+/* ─ INIT ─ */
+setTimeout(()=>{
+  document.getElementById('splash').classList.add('hide');
+
+  // ตรวจสอบ URL parameter จาก iPhone Shortcut NFC
+  const params=new URLSearchParams(window.location.search);
+  const memberId=params.get('member');
+
+  if(memberId){
+    // มี member ID ใน URL → ไปหน้า NFC แล้วแสดงข้อมูลสมาชิกทันที
+    goPage('qr');
+    // รอ Firebase โหลดข้อมูลก่อน แล้วค่อยแสดง
+    const tryShow=()=>{
+      const m=getMember(memberId);
+      if(m){
+        showQRResult(m);
+        showToast('สวัสดีค่ะ '+m.name+' 💅');
+      } else if(members.length===0){
+        setTimeout(tryShow,500); // รอ Firebase
+      } else {
+        document.getElementById('qr-result').innerHTML=`<div class="info-box ib-orange">⚠️ ไม่พบสมาชิก ID: ${memberId}</div>`;
+      }
+    };
+    setTimeout(tryShow,1000);
+  } else {
+    renderDashboard();
+  }
+},1600);
+
+// init packages page when navigated
+const origGoPage2=window.goPage2;
+window.goPage2=function(page){
+  origGoPage2(page);
+  if(page==='packages')renderPackagesEdit();
+};
+</script>
+</body>
+</html>
