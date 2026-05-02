@@ -283,22 +283,33 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div id="members-list"></div>
     </div>
 
-    <!-- ── QR SCAN ── -->
+    <!-- ── NFC SCAN ── -->
     <div class="page" id="page-qr">
-      <div class="page-header"><div class="page-title">สแกน QR</div></div>
-      <div class="qr-frame-wrap">
-        <video id="qr-video" autoplay playsinline muted></video>
-        <div class="qr-overlay"><div class="qr-frame"></div></div>
+      <div class="page-header"><div class="page-title">แตะบัตร NFC</div></div>
+
+      <!-- NFC Section -->
+      <div style="background:var(--white);border-radius:var(--radius);padding:24px;margin-bottom:14px;box-shadow:var(--shadow-sm);text-align:center;">
+        <div style="font-size:64px;margin-bottom:16px;">📡</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:8px;">แตะบัตร NFC กับมือถือ</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">ระบบจะดึงข้อมูลสมาชิกขึ้นมาทันที</div>
+        <button class="act-btn act-orange" style="width:100%;padding:18px;font-size:16px;margin-bottom:10px;" id="nfc-btn" onclick="startNFC()">
+          📡 เปิดรับบัตร NFC
+        </button>
+        <div id="nfc-status" style="font-size:13px;color:var(--muted);">กดปุ่มแล้วแตะบัตรได้เลยค่ะ</div>
+        <div id="nfc-unsupported" style="display:none;background:var(--orange-light);border-radius:var(--radius-sm);padding:12px;margin-top:10px;font-size:13px;color:var(--orange);">
+          ⚠️ มือถือนี้ไม่รองรับ NFC หรือยังไม่ได้เปิดใช้งาน<br>
+          <span style="font-size:12px;color:var(--muted);">ลอง: Settings → NFC → เปิดใช้งาน</span>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <button class="act-btn act-orange" onclick="startQR()">📷 เปิดกล้อง</button>
-        <button class="act-btn act-outline" onclick="stopQR()">⏹ หยุด</button>
-      </div>
-      <div class="fg">
-        <label class="fl">หรือค้นหาด้วยชื่อ / เบอร์</label>
+
+      <div id="nfc-result"></div>
+
+      <!-- Search fallback -->
+      <div style="margin-top:8px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px;text-align:center;">หรือค้นหาด้วยชื่อ / เบอร์</div>
         <input class="fi" id="qr-search" placeholder="พิมพ์ชื่อหรือเบอร์..." oninput="qrSearch()">
       </div>
-      <div id="qr-result"></div>
+      <div id="qr-result" style="margin-top:10px;"></div>
     </div>
 
     <!-- ── APPOINTMENTS ── -->
@@ -326,11 +337,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <span class="setting-label">จัดการแพ็กเกจ</span>
           <span class="setting-value" id="set-pkg-count">3 แพ็กเกจ →</span>
         </div>
-        <div class="setting-item" onclick="goPage2('services-edit')">
-          <span class="setting-icon">💅</span>
-          <span class="setting-label">บริการ & ราคา</span>
-          <span class="setting-value">5 บริการ →</span>
-        </div>
+
       </div>
 
       <div class="setting-group">
@@ -380,8 +387,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <button class="fab" onclick="openQuickAction()">＋</button>
       <span class="fab-label">ด่วน</span>
     </div>
-    <button class="nav-btn" id="nb-appointments" onclick="goPage('appointments')">
-      <span class="nb-icon">📅</span>คิว
+    <button class="nav-btn" id="nb-qr" onclick="goPage('qr')">
+      <span class="nb-icon">📡</span>NFC
     </button>
     <button class="nav-btn" id="nb-settings" onclick="goPage('settings')">
       <span class="nb-icon">⚙️</span>ตั้งค่า
@@ -419,8 +426,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
     </div>
     <div class="qa-btn" onclick="closeModal('modal-quick');goPage('qr')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
-      <div style="font-size:24px;">📷</div>
-      <div><div style="font-size:14px;font-weight:600;">สแกน QR สมาชิก</div><div style="font-size:12px;color:var(--muted);">เปิดกล้องสแกน</div></div>
+      <div style="font-size:24px;">📡</div>
+      <div><div style="font-size:14px;font-weight:600;">แตะบัตร NFC</div><div style="font-size:12px;color:var(--muted);">ดึงข้อมูลสมาชิก</div></div>
     </div>
   </div>
 </div>
@@ -595,7 +602,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </button>
       <button class="qa-btn" onclick="closeModal('modal-member-menu');showQRCodeFromMenu()" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left;">
         <div style="font-size:24px;">📱</div>
-        <div><div style="font-size:14px;font-weight:600;">แสดง QR Code</div><div style="font-size:12px;color:var(--muted);">บัตรสมาชิก</div></div>
+        <div><div style="font-size:14px;font-weight:600;">แตะบัตร NFC</div><div style="font-size:12px;color:var(--muted);">ดึงข้อมูลสมาชิก</div></div>
       </button>
       <button class="qa-btn" onclick="closeModal('modal-member-menu');openEditFromMenu()" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left;">
         <div style="font-size:24px;">✏️</div>
@@ -1179,6 +1186,110 @@ window.qrSearch=qrSearch;
 
 function showQRResult2(fid){const m=getMember(fid);if(m)showQRResult(m);}
 window.showQRResult2=showQRResult2;
+
+/* ─ NFC ─ */
+let nfcReader=null;
+
+async function startNFC(){
+  const btn=document.getElementById('nfc-btn');
+  const status=document.getElementById('nfc-status');
+  const unsupported=document.getElementById('nfc-unsupported');
+
+  // เช็คว่ารองรับ NFC ไหม
+  if(!('NDEFReader' in window)){
+    unsupported.style.display='block';
+    status.textContent='';
+    return;
+  }
+
+  try{
+    nfcReader=new NDEFReader();
+    await nfcReader.scan();
+
+    btn.style.background='var(--green)';
+    btn.textContent='📡 รอรับบัตร NFC... (แตะบัตรได้เลย)';
+    status.textContent='';
+    showToast('พร้อมรับบัตร NFC แล้วค่ะ — แตะบัตรกับมือถือได้เลย');
+
+    nfcReader.addEventListener('reading',({message,serialNumber})=>{
+      // อ่านค่าจากบัตร
+      let memberId='';
+      for(const record of message.records){
+        if(record.recordType==='text'){
+          const decoder=new TextDecoder(record.encoding||'utf-8');
+          const text=decoder.decode(record.data);
+          if(text.startsWith('nail:'))memberId=text.replace('nail:','');
+          else memberId=text;
+        } else if(record.recordType==='url'){
+          const decoder=new TextDecoder();
+          const url=decoder.decode(record.data);
+          const match=url.match(/nail:([^&?/]+)/);
+          if(match)memberId=match[1];
+        }
+      }
+      // ถ้าไม่มีข้อมูลใน record ใช้ serial number แทน
+      if(!memberId)memberId=serialNumber.replace(/:/g,'').toLowerCase();
+
+      btn.textContent='📡 เปิดรับบัตร NFC';
+      btn.style.background='';
+
+      const m=getMember(memberId);
+      if(m){
+        showToast('พบสมาชิก: '+m.name+' ✓');
+        document.getElementById('nfc-result').innerHTML='';
+        showQRResult(m);
+      } else {
+        // ลองหาจาก serial number ที่บันทึกไว้
+        const bySerial=members.find(mem=>mem.nfcSerial===serialNumber);
+        if(bySerial){
+          showToast('พบสมาชิก: '+bySerial.name+' ✓');
+          showQRResult(bySerial);
+        } else {
+          document.getElementById('nfc-result').innerHTML=`
+            <div class="info-box ib-orange" style="margin-top:10px;">
+              ⚠️ ไม่พบสมาชิกในระบบ<br>
+              <span style="font-size:12px;">Serial: ${serialNumber}</span><br>
+              <div style="margin-top:8px;font-size:13px;">ต้องการลงทะเบียนบัตรนี้ให้สมาชิกไหมคะ?</div>
+              <select class="fi fsel" id="nfc-assign-sel" style="margin-top:8px;">
+                <option value="">— เลือกสมาชิก —</option>
+                ${members.map(mem=>`<option value="${mem.firestoreId}">${mem.name}</option>`).join('')}
+              </select>
+              <button class="act-btn act-green" style="width:100%;margin-top:8px;" onclick="assignNFC('${serialNumber}')">✓ ลงทะเบียนบัตรนี้</button>
+            </div>`;
+        }
+      }
+    });
+
+    nfcReader.addEventListener('readingerror',()=>{
+      showToast('❌ อ่านบัตรไม่ได้ ลองใหม่อีกครั้งค่ะ');
+    });
+
+  } catch(e){
+    btn.textContent='📡 เปิดรับบัตร NFC';
+    btn.style.background='';
+    if(e.name==='NotAllowedError'){
+      showToast('กรุณาอนุญาตการใช้ NFC ค่ะ');
+    } else {
+      unsupported.style.display='block';
+    }
+  }
+}
+window.startNFC=startNFC;
+
+async function assignNFC(serial){
+  const memberId=document.getElementById('nfc-assign-sel')?.value;
+  if(!memberId){showToast('กรุณาเลือกสมาชิก');return;}
+  const m=getMember(memberId);
+  showLoading(true);
+  try{
+    await updateDoc(doc(db,'members',memberId),{nfcSerial:serial});
+    document.getElementById('nfc-result').innerHTML='';
+    showToast('ลงทะเบียนบัตร NFC ให้ '+m.name+' แล้ว ✓');
+    showQRResult(m);
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.assignNFC=assignNFC;
 
 /* ─ APPOINTMENTS ─ */
 function renderAppointments(){buildCal();renderApptList();}
