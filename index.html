@@ -354,6 +354,45 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
 
       <div class="setting-group">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:20px;">🏷️</span>
+            <span style="font-size:15px;font-weight:500;">ส่วนลดตามระดับสมาชิก</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">ระบบจะหักส่วนลดอัตโนมัติเมื่อตัดยอด เช่น Platinum 10% จ่าย ฿100 ตัดแค่ ฿90</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-silver">Silver</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-silver" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-gold">Gold</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-gold" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tier tier-platinum">Platinum</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-platinum" min="0" max="50" value="10" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setting-group">
         <div class="setting-item" onclick="exportData()">
           <span class="setting-icon">📥</span>
           <span class="setting-label">Export ข้อมูล JSON</span>
@@ -637,7 +676,7 @@ let members=[],appointments=[],PACKAGES=[
   {id:'gold',name:'Gold',price:1000,credit:1100,bonus:10,featured:true},
   {id:'platinum',name:'Platinum',price:2000,credit:2300,bonus:15,featured:false},
 ];
-let shop={name:'Zesty Nail Studio',phone:'',addr:'',lowBalance:200};
+let shop={name:'Zesty Nail Studio',phone:'',addr:'',lowBalance:200,discounts:{silver:0,gold:0,platinum:10}};
 let pendingTopup=null,selectedDate=todayStr(),qrStream=null,prevPage=null;
 
 /* ─ helpers ─ */
@@ -1022,17 +1061,31 @@ async function doDeduct(){
   const m=getMember(memberId);
   const amt=parseInt(document.getElementById('custom-price').value)||0;
   if(!amt||amt<=0){showToast('กรุณาระบุจำนวนเงิน');return;}
-  if((m.balance||0)<amt){showToast('⚠️ ยอดไม่พอ คงเหลือ '+fmtB(m.balance||0));return;}
   const note=document.getElementById('svc-note').value.trim();
   const svc=note||'บริการ';
+
+  // คำนวณส่วนลด
+  const discPct=(shop.discounts||{})[m.tier||'silver']||0;
+  const discAmt=Math.floor(amt*discPct/100);
+  const finalAmt=amt-discAmt;
+
   showLoading(true);
   try{
     await updateDoc(doc(db,'members',m.firestoreId),{
-      balance:(m.balance||0)-amt,visits:(m.visits||0)+1,
-      txs:[{type:'use',service:svc,amount:amt,date:today()},...(m.txs||[])]
+      balance:(m.balance||0)-finalAmt,
+      visits:(m.visits||0)+1,
+      txs:[{
+        type:'use',
+        service:svc,
+        amount:finalAmt,
+        originalAmount:amt,
+        discount:discPct,
+        discountAmt:discAmt,
+        date:today()
+      },...(m.txs||[])]
     });
     closeModal('modal-deduct-confirm');closeModal('modal-deduct');
-    showToast('🧡 ตัดยอด '+fmtB(amt)+' จาก '+m.name+' แล้ว');
+    showToast('🧡 ตัดยอด '+fmtB(finalAmt)+(discPct>0?' (ลด '+discPct+'%)':'')+' แล้ว');
     document.getElementById('svc-note').value='';
     document.getElementById('custom-price').value='';
   }catch(e){showToast('❌ '+e.message);}
@@ -1050,22 +1103,39 @@ function prepareDeduct(){
   if(balance<amt){showToast('⚠️ ยอดไม่พอ คงเหลือ '+fmtB(balance));return;}
   const note=document.getElementById('svc-note').value.trim();
   const svc=note||'บริการ';
-  const remaining=balance-amt;
+
+  // คำนวณส่วนลดตาม tier
+  const discPct=(shop.discounts||{})[m.tier||'silver']||0;
+  const discAmt=Math.floor(amt*discPct/100);
+  const finalAmt=amt-discAmt;
+
+  const remaining=balance-finalAmt;
   const willBeLow=remaining<(shop.lowBalance||200);
   document.getElementById('deduct-confirm-body').innerHTML=`
     <div class="info-box ib-orange" style="margin-bottom:14px;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:2px;">สมาชิก</div>
-      <div style="font-size:16px;font-weight:600;">${m.name}</div>
+      <div style="font-size:16px;font-weight:600;">${m.name} · <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span></div>
     </div>
     <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--muted);">บริการ</span><b>${svc}</b>
       </div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-        <span style="color:var(--muted);">ยอดก่อนตัด</span><b>${fmtB(balance)}</b>
+        <span style="color:var(--muted);">ราคาเต็ม</span><b>${fmtB(amt)}</b>
+      </div>
+      ${discPct>0?`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--green);">ส่วนลด ${discPct}% (${tLabel(m.tier)})</span>
+        <b style="color:var(--green);">- ${fmtB(discAmt)}</b>
       </div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-        <span style="color:var(--muted);">จำนวนที่ตัด</span><b style="color:var(--orange);font-size:18px;">- ${fmtB(amt)}</b>
+        <span style="color:var(--muted);">ราคาหลังลด</span><b style="color:var(--orange);font-size:18px;">${fmtB(finalAmt)}</b>
+      </div>`:`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">จำนวนที่ตัด</span><b style="color:var(--orange);font-size:18px;">- ${fmtB(finalAmt)}</b>
+      </div>`}
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">ยอดก่อนตัด</span><b>${fmtB(balance)}</b>
       </div>
       <div style="display:flex;justify-content:space-between;padding:10px 0 4px;align-items:center;">
         <span style="color:var(--muted);font-weight:600;">ยอดคงเหลือ</span>
@@ -1374,6 +1444,10 @@ function renderSettings(){
   document.getElementById('set-shop-preview').textContent=(shop.name||'Zesty Nail Studio')+' →';
   document.getElementById('set-pkg-count').textContent=PACKAGES.length+' แพ็กเกจ →';
   if(shop.lowBalance)document.getElementById('set-lowbal').value=shop.lowBalance;
+  const d=shop.discounts||{silver:0,gold:0,platinum:10};
+  const ds=document.getElementById('disc-silver');if(ds)ds.value=d.silver||0;
+  const dg=document.getElementById('disc-gold');if(dg)dg.value=d.gold||0;
+  const dp=document.getElementById('disc-platinum');if(dp)dp.value=d.platinum||0;
 }
 window.renderSettings=renderSettings;
 
@@ -1403,6 +1477,19 @@ async function saveLowBal(){
   try{await setDoc(doc(db,'settings','main'),{shop},{merge:true});}catch(e){}
 }
 window.saveLowBal=saveLowBal;
+
+async function saveDiscounts(){
+  shop.discounts={
+    silver:parseInt(document.getElementById('disc-silver')?.value)||0,
+    gold:parseInt(document.getElementById('disc-gold')?.value)||0,
+    platinum:parseInt(document.getElementById('disc-platinum')?.value)||0,
+  };
+  try{
+    await setDoc(doc(db,'settings','main'),{shop},{merge:true});
+    showToast('บันทึกส่วนลดแล้ว ✓');
+  }catch(e){showToast('❌ '+e.message);}
+}
+window.saveDiscounts=saveDiscounts;
 
 function renderPackagesEdit(){
   document.getElementById('pkg-list-edit').innerHTML=PACKAGES.map((p,i)=>`
