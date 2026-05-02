@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zesty Nail Studio — บัตรสมาชิก</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#FAF7F2;--dark:#1A1208;--gold:#C9A96E;--gold-light:#E8D5B0;
+  --pink:#E8B4C0;--pink-deep:#C47A8A;--white:#FFFFFF;
+  --muted:#8A7A6A;--green:#34C759;--orange:#FF6B35;
+}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:var(--cream);
+  min-height:100vh;min-height:-webkit-fill-available;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 20% 20%,rgba(232,180,192,0.15),transparent 60%),
+             radial-gradient(ellipse at 80% 80%,rgba(201,169,110,0.1),transparent 60%);
+  pointer-events:none;
+}
+
+.wrap{width:100%;max-width:380px;}
+
+/* LOADING */
+#loading-screen{text-align:center;padding:60px 20px;}
+.loading-ring{width:48px;height:48px;border:3px solid rgba(201,169,110,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--muted);}
+
+/* ERROR */
+#error-screen{display:none;text-align:center;padding:60px 20px;}
+.error-icon{font-size:48px;margin-bottom:16px;}
+.error-text{font-size:16px;color:var(--dark);font-weight:500;}
+.error-sub{font-size:13px;color:var(--muted);margin-top:8px;}
+
+/* CARD */
+#card-screen{display:none;animation:fadeUp .6s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.logo-area{text-align:center;margin-bottom:28px;}
+.logo-name{font-family:'Playfair Display',serif;font-size:26px;color:var(--dark);letter-spacing:2px;}
+.logo-line{width:40px;height:1px;background:var(--gold);margin:8px auto;}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
+
+.card{background:var(--white);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(26,18,8,0.12);}
+.card::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--pink),var(--gold),var(--pink-deep));}
+
+/* HEADER */
+.card-head{background:linear-gradient(135deg,#2A1A10,#1A1208);padding:28px 24px 24px;position:relative;overflow:hidden;}
+.card-head::after{content:'✦';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:90px;color:rgba(201,169,110,0.05);}
+.avatar{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--dark);margin-bottom:14px;}
+.member-name{font-family:'Playfair Display',serif;font-size:22px;color:white;font-weight:400;}
+.member-since{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;}
+.tier-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.3);color:var(--gold-light);font-size:11px;padding:3px 10px;border-radius:20px;margin-top:10px;letter-spacing:1px;}
+
+/* BALANCE */
+.balance-section{padding:22px 24px;border-bottom:1px solid rgba(201,169,110,0.12);}
+.bal-label{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.bal-amount{font-family:'Playfair Display',serif;font-size:40px;color:var(--dark);line-height:1;}
+.bal-unit{font-size:15px;color:var(--muted);margin-left:4px;}
+.bal-bar-bg{height:4px;background:rgba(201,169,110,0.12);border-radius:2px;margin-top:14px;overflow:hidden;}
+.bal-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--pink-deep));transition:width 1.2s ease;}
+.bal-hint{font-size:11px;color:var(--muted);margin-top:6px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(201,169,110,0.12);}
+.stat{padding:18px 24px;text-align:center;}
+.stat:first-child{border-right:1px solid rgba(201,169,110,0.12);}
+.stat-num{font-family:'Playfair Display',serif;font-size:28px;color:var(--dark);}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* LAST TX */
+.last-tx{padding:18px 24px;border-bottom:1px solid rgba(201,169,110,0.12);}
+.sec-title{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.tx-item{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.tx-dot{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.tx-dot.top{background:#E8F8ED;}
+.tx-dot.use{background:#FFF0EB;}
+.tx-info{flex:1;}
+.tx-name{font-size:13px;color:var(--dark);}
+.tx-date{font-size:11px;color:var(--muted);}
+.tx-amt{font-size:13px;font-weight:500;}
+.tx-amt.pos{color:var(--green);}
+.tx-amt.neg{color:var(--orange);}
+
+/* BENEFITS */
+.benefits{padding:18px 24px;background:rgba(201,169,110,0.03);}
+.benefit-item{display:flex;align-items:center;gap:10px;padding:5px 0;}
+.benefit-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.benefit-text{font-size:13px;color:var(--dark);}
+
+/* FOOTER */
+.card-foot{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.card-id{font-size:10px;color:rgba(201,169,110,0.4);letter-spacing:1px;font-family:monospace;}
+
+/* NOTE */
+.note{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);line-height:1.8;padding:0 16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Loading -->
+  <div id="loading-screen">
+    <div class="loading-ring"></div>
+    <div class="loading-text">กำลังโหลดข้อมูลสมาชิก...</div>
+  </div>
+
+  <!-- Error -->
+  <div id="error-screen">
+    <div class="error-icon">💅</div>
+    <div class="error-text">ไม่พบข้อมูลสมาชิก</div>
+    <div class="error-sub">กรุณาติดต่อพนักงานค่ะ</div>
+  </div>
+
+  <!-- Card -->
+  <div id="card-screen">
+    <div class="logo-area">
+      <div class="logo-name" id="shop-name">Zesty Nail Studio</div>
+      <div class="logo-line"></div>
+      <div class="logo-sub">Member Card</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="avatar" id="avatar">ม</div>
+        <div class="member-name" id="member-name">—</div>
+        <div class="member-since" id="member-since">—</div>
+        <div class="tier-badge" id="tier-badge">✦ Silver Member</div>
+      </div>
+
+      <div class="balance-section">
+        <div class="bal-label">ยอดเงินคงเหลือ</div>
+        <div>
+          <span class="bal-amount" id="bal-amount">0</span>
+          <span class="bal-unit">บาท</span>
+        </div>
+        <div class="bal-bar-bg">
+          <div class="bal-bar-fill" id="bal-bar" style="width:0%"></div>
+        </div>
+        <div class="bal-hint" id="bal-hint"></div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-num" id="visits">0</div>
+          <div class="stat-lbl">ครั้งใช้บริการ</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="discount">0%</div>
+          <div class="stat-lbl">ส่วนลดพิเศษ</div>
+        </div>
+      </div>
+
+      <div class="last-tx" id="last-tx-section">
+        <div class="sec-title">รายการล่าสุด</div>
+        <div id="last-tx-list"></div>
+      </div>
+
+      <div class="benefits">
+        <div class="sec-title">สิทธิพิเศษของคุณ</div>
+        <div id="benefits-list"></div>
+      </div>
+
+      <div class="card-foot">
+        <div class="card-id" id="card-id">ZESTY · MBR</div>
+        <div style="font-size:12px;color:rgba(201,169,110,0.3);">✦ ✦ ✦</div>
+      </div>
+    </div>
+
+    <div class="note">
+      บัตรนี้ใช้สำหรับ<strong style="color:var(--gold);">ดูข้อมูลเท่านั้น</strong><br>
+      การเติมเงินและใช้บริการดำเนินการโดยพนักงานเท่านั้นค่ะ 💅
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyD8FSmTxkSyABCrdhgA32-cEjfjSrbzQPM",
+  authDomain:"zesty-nail-studio-v2.firebaseapp.com",
+  projectId:"zesty-nail-studio-v2",
+  storageBucket:"zesty-nail-studio-v2.firebasestorage.app",
+  messagingSenderId:"661427029237",
+  appId:"1:661427029237:web:1da8aeb8f27df2d2be31bc"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const fmtB=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
+const tLabel=t=>t==='platinum'?'Platinum':t==='gold'?'Gold':'Silver';
+const tierBenefits={
+  silver:['ระบบสมาชิก Prepaid สะดวกรวดเร็ว','สะสมประวัติการใช้บริการ','รับโปรโมชั่นพิเศษ'],
+  gold:['ส่วนลดพิเศษทุกบริการ','สะสมประวัติการใช้บริการ','รับโปรโมชั่นก่อนใคร','จองคิวล่วงหน้าได้'],
+  platinum:['ส่วนลดสูงสุดทุกบริการ','บริการ VIP ก่อนใคร','รับโปรโมชั่นพิเศษ Exclusive','จองคิวล่วงหน้าได้','ของขวัญพิเศษวันเกิด']
+};
+
+// อ่าน member ID จาก URL
+const params=new URLSearchParams(window.location.search);
+const memberId=params.get('member');
+
+function showError(){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('error-screen').style.display='block';
+}
+
+function showCard(m, shopData){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('card-screen').style.display='block';
+
+  const tier=m.tier||'silver';
+  const balance=m.balance||0;
+  const discounts=(shopData?.discounts)||{silver:0,gold:0,platinum:10};
+  const discPct=discounts[tier]||0;
+
+  // Shop name
+  if(shopData?.name) document.getElementById('shop-name').textContent=shopData.name;
+
+  // Avatar
+  const initial=(m.name||'?').replace('คุณ','').trim().charAt(0);
+  document.getElementById('avatar').textContent=initial;
+
+  // Name & since
+  document.getElementById('member-name').textContent=m.name||'สมาชิก';
+  document.getElementById('member-since').textContent='สมาชิกตั้งแต่ '+(m.joined||'');
+
+  // Tier badge
+  const tierColors={silver:'rgba(150,150,150,0.15)',gold:'rgba(201,169,110,0.15)',platinum:'rgba(130,100,200,0.15)'};
+  const tb=document.getElementById('tier-badge');
+  tb.textContent='✦ '+tLabel(tier)+' Member';
+  tb.style.background=tierColors[tier];
+
+  // Balance counter animation
+  const balEl=document.getElementById('bal-amount');
+  let cur=0;const step=balance/60;
+  const timer=setInterval(()=>{
+    cur=Math.min(cur+step,balance);
+    balEl.textContent=Math.round(cur).toLocaleString('th-TH');
+    if(cur>=balance)clearInterval(timer);
+  },16);
+
+  // Balance bar
+  const pkgMax={silver:500,gold:1100,platinum:2300};
+  const maxBal=pkgMax[tier]||1000;
+  const pct=Math.min(Math.round(balance/maxBal*100),100);
+  setTimeout(()=>{document.getElementById('bal-bar').style.width=pct+'%';},300);
+  document.getElementById('bal-hint').textContent=pct+'% ของแพ็กเกจ '+tLabel(tier)+' ('+fmtB(maxBal)+')';
+
+  // Stats
+  document.getElementById('visits').textContent=m.visits||0;
+  document.getElementById('discount').textContent=discPct>0?discPct+'%':'—';
+
+  // Last transactions (3 รายการ)
+  const txs=(m.txs||[]).slice(0,3);
+  const txEl=document.getElementById('last-tx-list');
+  if(txs.length){
+    txEl.innerHTML=txs.map(tx=>{
+      const isTop=tx.type==='top';
+      return `<div class="tx-item">
+        <div class="tx-dot ${isTop?'top':'use'}">${isTop?'💚':'🧡'}</div>
+        <div class="tx-info">
+          <div class="tx-name">${isTop?'เติมเงิน '+tx.pkg:tx.service}</div>
+          <div class="tx-date">${tx.date}</div>
+        </div>
+        <div class="tx-amt ${isTop?'pos':'neg'}">${isTop?'+':'-'}${fmtB(tx.amount)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('last-tx-section').style.display='none';
+  }
+
+  // Benefits
+  const benefits=tierBenefits[tier]||tierBenefits.silver;
+  if(discPct>0&&!benefits[0].includes('ส่วนลด')){
+    benefits[0]='ส่วนลด '+discPct+'% ทุกบริการ';
+  }
+  document.getElementById('benefits-list').innerHTML=benefits.map(b=>`
+    <div class="benefit-item">
+      <div class="benefit-dot"></div>
+      <div class="benefit-text">${b}</div>
+    </div>`).join('');
+
+  // Card ID (แสดงแค่ 6 ตัวท้าย)
+  document.getElementById('card-id').textContent='ZESTY · '+memberId.slice(-6).toUpperCase();
+}
+
+async function loadData(){
+  if(!memberId){showError();return;}
+
+  try{
+    // โหลด member และ settings พร้อมกัน
+    const [memberSnap,settingsSnap]=await Promise.all([
+      getDoc(doc(db,'members',memberId)),
+      getDoc(doc(db,'settings','main'))
+    ]);
+
+    if(!memberSnap.exists()){showError();return;}
+
+    const m=memberSnap.data();
+    const shopData=settingsSnap.exists()?settingsSnap.data()?.shop:null;
+
+    showCard(m, shopData);
+
+    // Real-time update ถ้ายอดเงินเปลี่ยน
+    onSnapshot(doc(db,'members',memberId),snap=>{
+      if(snap.exists()){
+        const updated=snap.data();
+        const balEl=document.getElementById('bal-amount');
+        if(balEl) balEl.textContent=Math.round(updated.balance||0).toLocaleString('th-TH');
+        const visEl=document.getElementById('visits');
+        if(visEl) visEl.textContent=updated.visits||0;
+      }
+    });
+
+  } catch(e){
+    console.error(e);
+    showError();
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
