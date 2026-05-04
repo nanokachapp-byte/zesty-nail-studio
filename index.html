@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Zesty Nail Studio</title>
+<title>The SIGNATURE</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zesty">
@@ -22,8 +22,9 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
 
 /* SPLASH */
-#splash{position:fixed;inset:0;z-index:9999;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .5s;}
+#splash{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .8s;}
 #splash.hide{opacity:0;pointer-events:none;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
 #splash-logo{width:96px;height:96px;border-radius:24px;object-fit:cover;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
 #splash h1{font-size:26px;font-weight:700;color:var(--text);}
 #splash p{font-size:14px;color:var(--muted);}
@@ -194,9 +195,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 /* TIER BADGE */
 .tier{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.tier-bronze{background:#F5EEE8;color:#8B6347;}
 .tier-silver{background:#E8E8E8;color:#555;}
 .tier-gold{background:#FFF0CC;color:#8A6000;}
-.tier-platinum{background:var(--purple-light);color:#534AB7;}
+.tier-platinum{background:#E8E8F0;color:#333;}
+.tier-diamond{background:#1A1A1A;color:#4FC3F7;}
 
 /* TOAST */
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(40px);background:#1A1A1A;color:white;padding:12px 20px;border-radius:20px;font-size:13px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
@@ -231,10 +234,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 <!-- SPLASH -->
 <div id="splash">
-  <div style="font-size:72px;">💅</div>
-  <h1>Zesty Nail Studio</h1>
-  <p>by Pang</p>
-  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <img src="https://nanokachapp-byte.github.io/zesty-nail-studio/S__27738121.jpg"
+       style="width:280px;height:280px;object-fit:contain;animation:fadeIn 1s ease;"
+       alt="The SIGNATURE">
 </div>
 
 <div id="loading"><div class="loading-ring"></div><div style="font-size:14px;color:var(--muted);">กำลังบันทึก...</div></div>
@@ -247,7 +249,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div class="page-header">
         <div>
           <div style="font-size:13px;color:var(--muted);">สวัสดีค่ะ 👋</div>
-          <div class="page-title" id="dash-shop-name">Zesty Nail Studio</div>
+          <div class="page-title" id="dash-shop-name">The SIGNATURE</div>
         </div>
         <div class="header-right">
           <div class="sync-pill sync-load" id="sync-status">⏳</div>
@@ -330,14 +332,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         <div class="setting-item" onclick="openShopEdit()">
           <span class="setting-icon">🏪</span>
           <span class="setting-label">ข้อมูลร้าน</span>
-          <span class="setting-value" id="set-shop-preview">Zesty Nail Studio →</span>
+          <span class="setting-value" id="set-shop-preview">The SIGNATURE →</span>
         </div>
         <div class="setting-item" onclick="goPage2('packages')">
           <span class="setting-icon">💳</span>
           <span class="setting-label">จัดการแพ็กเกจ</span>
           <span class="setting-value" id="set-pkg-count">3 แพ็กเกจ →</span>
         </div>
-
+        <div class="setting-item" onclick="goPage2('stores-edit')">
+          <span class="setting-icon">🏬</span>
+          <span class="setting-label">จัดการร้านในเครือ</span>
+          <span class="setting-value" id="set-stores-count">3 ร้าน →</span>
+        </div>
       </div>
 
       <div class="setting-group">
@@ -354,40 +360,72 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
 
       <div class="setting-group">
-        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:20px;">🏷️</span>
-            <span style="font-size:15px;font-weight:500;">ส่วนลดตามระดับสมาชิก</span>
+        <div style="padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🏷️</span>
+              <span style="font-size:15px;font-weight:500;">ส่วนลดตามระดับสมาชิก</span>
+            </div>
+            <button onclick="saveDiscounts()" style="background:var(--orange);color:white;border:none;padding:6px 14px;border-radius:20px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">💾 บันทึก</button>
           </div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">ระบบจะหักส่วนลดอัตโนมัติเมื่อตัดยอด เช่น Platinum 10% จ่าย ฿100 ตัดแค่ ฿90</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">ระบบหักส่วนลดอัตโนมัติตอนตัดยอด · แก้ไขแล้วกด บันทึก</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#F5EEE8;border-radius:var(--radius-xs);padding:12px 14px;border-left:4px solid #8B6347;">
               <div style="display:flex;align-items:center;gap:8px;">
-                <span class="tier tier-silver">Silver</span>
+                <span style="font-size:16px;">🟤</span>
+                <div><div style="font-size:13px;font-weight:600;color:#8B6347;">Bronze</div><div style="font-size:11px;color:var(--muted);">VIP-B</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:6px;">
-                <input type="number" id="disc-silver" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <input type="number" id="disc-bronze" min="0" max="50" value="0" style="width:54px;text-align:center;border:1.5px solid #C4A882;border-radius:var(--radius-xs);padding:6px;font-size:15px;font-weight:600;font-family:var(--font);">
                 <span style="font-size:13px;color:var(--muted);">%</span>
               </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F5F5;border-radius:var(--radius-xs);padding:12px 14px;border-left:4px solid #888;">
               <div style="display:flex;align-items:center;gap:8px;">
-                <span class="tier tier-gold">Gold</span>
+                <span style="font-size:16px;">⚪</span>
+                <div><div style="font-size:13px;font-weight:600;color:#666;">Silver</div><div style="font-size:11px;color:var(--muted);">VIP-S</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:6px;">
-                <input type="number" id="disc-gold" min="0" max="50" value="0" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <input type="number" id="disc-silver" min="0" max="50" value="0" style="width:54px;text-align:center;border:1.5px solid #CCC;border-radius:var(--radius-xs);padding:6px;font-size:15px;font-weight:600;font-family:var(--font);">
                 <span style="font-size:13px;color:var(--muted);">%</span>
               </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:10px 14px;">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#FFF8E7;border-radius:var(--radius-xs);padding:12px 14px;border-left:4px solid #C9A96E;">
               <div style="display:flex;align-items:center;gap:8px;">
-                <span class="tier tier-platinum">Platinum</span>
+                <span style="font-size:16px;">🟡</span>
+                <div><div style="font-size:13px;font-weight:600;color:#8A6000;">Gold</div><div style="font-size:11px;color:var(--muted);">VIP-G</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:6px;">
-                <input type="number" id="disc-platinum" min="0" max="50" value="10" onchange="saveDiscounts()" style="width:54px;text-align:center;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:6px;font-size:14px;font-family:var(--font);">
+                <input type="number" id="disc-gold" min="0" max="50" value="0" style="width:54px;text-align:center;border:1.5px solid #C9A96E;border-radius:var(--radius-xs);padding:6px;font-size:15px;font-weight:600;font-family:var(--font);">
                 <span style="font-size:13px;color:var(--muted);">%</span>
               </div>
             </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#F0F0F5;border-radius:var(--radius-xs);padding:12px 14px;border-left:4px solid #555;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:16px;">⚫</span>
+                <div><div style="font-size:13px;font-weight:600;color:#333;">Platinum</div><div style="font-size:11px;color:var(--muted);">VVIP-P</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-platinum" min="0" max="50" value="0" style="width:54px;text-align:center;border:1.5px solid #999;border-radius:var(--radius-xs);padding:6px;font-size:15px;font-weight:600;font-family:var(--font);">
+                <span style="font-size:13px;color:var(--muted);">%</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#1A1A1A;border-radius:var(--radius-xs);padding:12px 14px;border-left:4px solid #4FC3F7;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:16px;">💎</span>
+                <div><div style="font-size:13px;font-weight:600;color:#E0E0E0;">Diamond</div><div style="font-size:11px;color:#888;">VVIP-D</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="number" id="disc-diamond" min="0" max="50" value="0" style="width:54px;text-align:center;border:1.5px solid #4FC3F7;border-radius:var(--radius-xs);padding:6px;font-size:15px;font-weight:600;font-family:var(--font);background:#2A2A2A;color:white;">
+                <span style="font-size:13px;color:#888;">%</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -412,6 +450,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <button class="act-btn act-outline" onclick="addPackage()" style="width:100%;margin-top:8px;">+ เพิ่มแพ็กเกจ</button>
     </div>
 
+    <div class="page" id="page-stores-edit">
+      <div class="page-header">
+        <button class="icon-btn" onclick="goBack()">←</button>
+        <div class="page-title">ร้านในเครือ</div>
+        <button class="icon-btn" onclick="saveStores()">💾</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">ร้านเหล่านี้จะแสดงให้เลือกตอนตัดยอด</div>
+      <div id="stores-list-edit"></div>
+      <button class="act-btn act-outline" onclick="addStore()" style="width:100%;margin-top:8px;">+ เพิ่มร้าน</button>
+    </div>
+
   </div>
 
   <!-- BOTTOM NAV -->
@@ -426,8 +475,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <button class="fab" onclick="openQuickAction()">＋</button>
       <span class="fab-label">ด่วน</span>
     </div>
-    <button class="nav-btn" id="nb-qr" onclick="goPage('qr')">
-      <span class="nb-icon">📡</span>NFC
+    <button class="nav-btn" id="nb-appointments" onclick="goPage('appointments')">
+      <span class="nb-icon">📅</span>คิว
     </button>
     <button class="nav-btn" id="nb-settings" onclick="goPage('settings')">
       <span class="nb-icon">⚙️</span>ตั้งค่า
@@ -503,9 +552,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="fg"><label class="fl">เบอร์โทร</label><input type="tel" class="fi" id="edit-phone"></div>
     <div class="fg"><label class="fl">ระดับ</label>
       <select class="fi fsel" id="edit-tier">
-        <option value="silver">Silver</option>
-        <option value="gold">Gold</option>
-        <option value="platinum">Platinum</option>
+        <option value="bronze">🟤 Bronze (VIP-B)</option>
+        <option value="silver">⚪ Silver (VIP-S)</option>
+        <option value="gold">🟡 Gold (VIP-G)</option>
+        <option value="platinum">⚫ Platinum (VVIP-P)</option>
+        <option value="diamond">💎 Diamond (VVIP-D)</option>
       </select>
     </div>
     <input type="hidden" id="edit-fid">
@@ -552,10 +603,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <select class="fi fsel" id="svc-sel" onchange="updateSvcPreview()"><option value="">— เลือกสมาชิก —</option></select>
     </div>
     <div id="svc-preview"></div>
+    <!-- Store selector -->
+    <div class="fg"><label class="fl">ร้านที่ใช้บริการ</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="store-selector"></div>
+    </div>
     <div class="fg"><label class="fl">จำนวนเงิน (บาท) *</label>
       <input type="number" class="fi" id="custom-price" placeholder="ระบุจำนวนเงิน เช่น 350" inputmode="numeric" style="font-size:18px;font-weight:600;">
     </div>
-    <div class="fg"><label class="fl">รายละเอียดบริการ (ไม่บังคับ)</label>
+    <div class="fg"><label class="fl">รายละเอียด (ไม่บังคับ)</label>
       <input class="fi" id="svc-note" placeholder="เช่น ทำเล็บเจล สีแดง">
     </div>
     <div class="mfoot">
@@ -591,11 +646,33 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div class="fg"><label class="fl">วันที่</label><input type="date" class="fi" id="appt-date"></div>
       <div class="fg"><label class="fl">เวลา</label><input type="time" class="fi" id="appt-time" value="10:00"></div>
     </div>
-    <div class="fg"><label class="fl">บริการ</label>
-      <select class="fi fsel" id="appt-svc">
-        <option>ทำเล็บธรรมดา</option><option>ทำเล็บเจล</option><option>ต่อเล็บ</option>
-        <option>ทำเล็บอะคริลิค</option><option>ถอดเล็บ</option><option>อื่นๆ</option>
-      </select>
+    <div class="fg"><label class="fl">บริการ (เลือกได้หลายอย่าง)</label>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="appt-svc-list">
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>💅</span><span style="font-size:14px;">เล็บเจลสีพื้น</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);">฿200</span><input type="checkbox" value="เล็บเจลสีพื้น ฿200" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>💅</span><span style="font-size:14px;">ต่อเล็บ PVC</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);">฿300</span><input type="checkbox" value="ต่อเล็บ PVC ฿300" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>✨</span><span style="font-size:14px;">ทาสีลูกแก้ว</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);">฿400</span><input type="checkbox" value="ทาสีลูกแก้ว ฿400" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>🌈</span><span style="font-size:14px;">ไล่สี-ออมเบร</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);">฿450</span><input type="checkbox" value="ไล่สี-ออมเบร ฿450" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>🤍</span><span style="font-size:14px;">เฟรนช์ปลาย</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);">฿300</span><input type="checkbox" value="เฟรนช์ปลาย ฿300" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-xs);padding:11px 14px;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;"><span>📝</span><span style="font-size:14px;">อื่นๆ</span></div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--muted);"></span><input type="checkbox" value="อื่นๆ" style="width:18px;height:18px;accent-color:var(--orange);cursor:pointer;"></div>
+        </label>
+      </div>
     </div>
     <div class="fg"><label class="fl">หมายเหตุ</label><input class="fi" id="appt-note" placeholder="สีที่ต้องการ..."></div>
     <div class="mfoot">
@@ -610,7 +687,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div class="mbox">
     <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button onclick="this.closest('.overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button></div><div class="mhandle"></div>
     <div class="mtitle">🏪 ข้อมูลร้าน</div>
-    <div class="fg"><label class="fl">ชื่อร้าน</label><input class="fi" id="set-name" placeholder="Zesty Nail Studio"></div>
+    <div class="fg"><label class="fl">ชื่อร้าน</label><input class="fi" id="set-name" placeholder="The SIGNATURE"></div>
     <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="set-phone" placeholder="081-xxx-xxxx"></div>
     <div class="fg"><label class="fl">ที่อยู่</label><input class="fi" id="set-addr" placeholder="ที่อยู่ร้าน"></div>
     <div class="mfoot">
@@ -672,11 +749,17 @@ const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 
 let members=[],appointments=[],PACKAGES=[
-  {id:'silver',name:'Silver',price:500,credit:500,bonus:0,featured:false},
-  {id:'gold',name:'Gold',price:1000,credit:1100,bonus:10,featured:true},
-  {id:'platinum',name:'Platinum',price:2000,credit:2300,bonus:15,featured:false},
+  {id:'bronze',name:'Bronze',price:500,credit:500,bonus:0,featured:false},
+  {id:'silver',name:'Silver',price:1000,credit:1000,bonus:0,featured:false},
+  {id:'gold',name:'Gold',price:2000,credit:2200,bonus:10,featured:true},
+  {id:'platinum',name:'Platinum',price:5000,credit:5500,bonus:10,featured:false},
+  {id:'diamond',name:'Diamond',price:10000,credit:11500,bonus:15,featured:false},
 ];
-let shop={name:'Zesty Nail Studio',phone:'',addr:'',lowBalance:200,discounts:{silver:0,gold:0,platinum:10}};
+let shop={name:'The SIGNATURE',phone:'',addr:'',lowBalance:200,discounts:{bronze:0,silver:0,gold:0,platinum:0,diamond:0},stores:[
+  {id:'coffee',name:'Supatra Coffee',icon:'☕'},
+  {id:'cuisine',name:'Supatra Cuisine',icon:'🍽️'},
+  {id:'nail',name:'Zesty Nail Studio',icon:'💅'},
+]};
 let pendingTopup=null,selectedDate=todayStr(),qrStream=null,prevPage=null;
 
 /* ─ helpers ─ */
@@ -686,8 +769,9 @@ const AVTXT=['#8A6A5A','#5A8A6A','#5A6A8A','#8A7A5A','#6A5A8A'];
 const fmtB=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
 const init=name=>name.replace('คุณ','').trim().charAt(0)||'?';
 const avcol=(i,bg)=>bg?AVCOL[i%AVCOL.length]:AVTXT[i%AVTXT.length];
-const tLabel=t=>t==='silver'?'Silver':t==='gold'?'Gold':'Platinum';
-const tClass=t=>'tier-'+t;
+const tLabel=t=>{const m={bronze:'Bronze',silver:'Silver',gold:'Gold',platinum:'Platinum',diamond:'Diamond'};return m[t]||'Bronze';};
+const tClass=t=>'tier-'+(t||'bronze');
+const tIcon=t=>{const m={bronze:'🟤',silver:'⚪',gold:'🟡',platinum:'⚫',diamond:'💎'};return m[t]||'🟤';};
 function getMember(id){return members.find(m=>m.firestoreId===id);}
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function today(){
@@ -721,7 +805,7 @@ function goBack(){goPage(prevPage||'settings');}
 window.goPage=goPage;window.goPage2=goPage2;window.goBack=goBack;
 
 function applyShop(){
-  const n=shop.name||'Zesty Nail Studio';
+  const n=shop.name||'The SIGNATURE';
   document.title=n;
   const el=document.getElementById('dash-shop-name');if(el)el.textContent=n;
   const sp=document.getElementById('set-shop-preview');if(sp)sp.textContent=n+' →';
@@ -751,6 +835,7 @@ onSnapshot(doc(db,'settings','main'),snap=>{
   if(snap.exists()){const d=snap.data();
     if(d.shop)Object.assign(shop,d.shop);
     if(d.packages)PACKAGES=d.packages;
+    if(d.shop?.stores)shop.stores=d.shop.stores;
     applyShop();
     const lb=document.getElementById('set-lowbal');if(lb&&shop.lowBalance)lb.value=shop.lowBalance;
   }
@@ -805,9 +890,10 @@ function txRowHTML(tx){
   const isTop=tx.type==='top';
   const bg=isTop?'background:var(--green-light)':'background:var(--orange-light)';
   const lbl=isTop?'เติมเงิน '+tx.pkg:tx.service;
-  const amt=isTop?`<span class="tx-amt" style="color:var(--green);">+${fmtB(tx.amount)}</span>`:`<span class="tx-amt" style="color:var(--orange);">-${fmtB(tx.amount)}</span>`;
+  const storeLbl=(!isTop&&tx.storeName)?`<span style="font-size:11px;background:var(--bg);padding:1px 6px;border-radius:10px;margin-left:4px;">${tx.storeIcon||''}${tx.storeName}</span>`:'';
   const mn=tx.memberName?`<span style="font-size:11px;color:var(--muted);"> · ${tx.memberName}</span>`:'';
-  return `<div class="tx-row"><div class="tx-dot" style="${bg}">${isTop?'💚':'🧡'}</div><div class="tx-info"><div class="tx-name">${lbl}${mn}</div><div class="tx-date">${tx.date}</div></div>${amt}</div>`;
+  const amt=isTop?`<span class="tx-amt" style="color:var(--green);">+${fmtB(tx.amount)}</span>`:`<span class="tx-amt" style="color:var(--orange);">-${fmtB(tx.amount)}</span>`;
+  return `<div class="tx-row"><div class="tx-dot" style="${bg}">${isTop?'💚':'🧡'}</div><div class="tx-info"><div class="tx-name">${lbl}${storeLbl}${mn}</div><div class="tx-date">${tx.date}</div></div>${amt}</div>`;
 }
 
 function apptCardHTML(a){
@@ -840,7 +926,7 @@ function renderMembers(){
       <div class="mc-avatar" style="background:${avcol(i,true)};color:${avcol(i,false)};">${init(m.name)}</div>
       <div class="mc-info" onclick="showMemberDetail('${m.firestoreId}')">
         <div class="mc-name">${m.name}</div>
-        <div class="mc-sub">${m.phone||''} · ${m.visits||0} ครั้ง · <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span></div>
+        <div class="mc-sub">${m.phone||''} · ${m.visits||0} ครั้ง · <span class="tier ${tClass(m.tier)}">${tIcon(m.tier)} ${tLabel(m.tier)}</span></div>
         <div class="mc-actions">
           <button class="act-btn act-green" onclick="event.stopPropagation();quickTopup('${m.firestoreId}')">💚 เติมเงิน</button>
           <button class="act-btn act-orange" onclick="event.stopPropagation();quickDeduct('${m.firestoreId}')">🧡 ตัดยอด</button>
@@ -872,7 +958,7 @@ async function saveMember(){
   const phone=document.getElementById('new-phone').value.trim()||'-';
   const pkgId=document.getElementById('new-pkg').value;
   const pkg=PACKAGES.find(p=>p.id===pkgId);
-  let balance=0,tier='silver',txs=[];
+  let balance=0,tier='bronze',txs=[];
   if(pkg){balance=pkg.credit;tier=pkg.id;txs=[{type:'top',pkg:pkg.name,amount:pkg.credit,date:today()}];}
   const d=new Date();
   const mo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()];
@@ -1023,9 +1109,9 @@ async function doTopup(){
   const m=getMember(pendingTopup.firestoreId);const pkg=pendingTopup.pkg;
   const newBal=(m.balance||0)+pkg.credit;
   const newTxs=[{type:'top',pkg:pkg.name,amount:pkg.credit,date:today()},...(m.txs||[])];
-  let newTier=m.tier;
-  if(pkg.id==='platinum')newTier='platinum';
-  else if(pkg.id==='gold'&&m.tier==='silver')newTier='gold';
+  const tierOrder=['bronze','silver','gold','platinum','diamond'];
+  let newTier=m.tier||'bronze';
+  if(tierOrder.indexOf(pkg.id)>tierOrder.indexOf(newTier))newTier=pkg.id;
   showLoading(true);
   try{
     await updateDoc(doc(db,'members',m.firestoreId),{balance:newBal,tier:newTier,txs:newTxs});
@@ -1037,7 +1123,13 @@ async function doTopup(){
 window.doTopup=doTopup;
 
 /* ─ DEDUCT ─ */
-function openDeductFlow(){populateMemberSelects();document.getElementById('svc-preview').innerHTML='';openModal('modal-deduct');}
+function openDeductFlow(){
+  populateMemberSelects();
+  document.getElementById('svc-preview').innerHTML='';
+  selectedStore=null;
+  renderStoreSelector();
+  openModal('modal-deduct');
+}
 window.openDeductFlow=openDeductFlow;
 
 function updateSvcPreview(){
@@ -1081,13 +1173,18 @@ async function doDeduct(){
         originalAmount:amt,
         discount:discPct,
         discountAmt:discAmt,
+        storeId:selectedStore?.id||'',
+        storeName:selectedStore?.name||'',
+        storeIcon:selectedStore?.icon||'',
         date:today()
       },...(m.txs||[])]
     });
     closeModal('modal-deduct-confirm');closeModal('modal-deduct');
-    showToast('🧡 ตัดยอด '+fmtB(finalAmt)+(discPct>0?' (ลด '+discPct+'%)':'')+' แล้ว');
+    const storeLabel=selectedStore?' · '+selectedStore.icon+selectedStore.name:'';
+    showToast('🧡 ตัดยอด '+fmtB(finalAmt)+(discPct>0?' (ลด '+discPct+'%)':'')+storeLabel+' แล้ว');
     document.getElementById('svc-note').value='';
     document.getElementById('custom-price').value='';
+    selectedStore=null;
   }catch(e){showToast('❌ '+e.message);}
   showLoading(false);
 }
@@ -1096,6 +1193,8 @@ window.doDeduct=doDeduct;
 function prepareDeduct(){
   const memberId=document.getElementById('svc-sel').value;
   if(!memberId){showToast('กรุณาเลือกสมาชิก');return;}
+  const stores=shop.stores||[];
+  if(stores.length>1&&!selectedStore){showToast('กรุณาเลือกร้านที่ใช้บริการ');return;}
   const m=getMember(memberId);
   const amt=parseInt(document.getElementById('custom-price').value)||0;
   if(!amt||amt<=0){showToast('กรุณาระบุจำนวนเงิน');return;}
@@ -1103,6 +1202,8 @@ function prepareDeduct(){
   if(balance<amt){showToast('⚠️ ยอดไม่พอ คงเหลือ '+fmtB(balance));return;}
   const note=document.getElementById('svc-note').value.trim();
   const svc=note||'บริการ';
+  const storeName=selectedStore?selectedStore.name:'';
+  const storeIcon=selectedStore?selectedStore.icon:'';
 
   // คำนวณส่วนลดตาม tier
   const discPct=(shop.discounts||{})[m.tier||'silver']||0;
@@ -1117,21 +1218,22 @@ function prepareDeduct(){
       <div style="font-size:16px;font-weight:600;">${m.name} · <span class="tier ${tClass(m.tier)}">${tLabel(m.tier)}</span></div>
     </div>
     <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;">
+      ${selectedStore?`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="color:var(--muted);">ร้าน</span><b>${storeIcon} ${storeName}</b>
+      </div>`:''}
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--muted);">บริการ</span><b>${svc}</b>
       </div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--muted);">ราคาเต็ม</span><b>${fmtB(amt)}</b>
       </div>
-      ${discPct>0?`
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      ${discPct>0?`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--green);">ส่วนลด ${discPct}% (${tLabel(m.tier)})</span>
         <b style="color:var(--green);">- ${fmtB(discAmt)}</b>
       </div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--muted);">ราคาหลังลด</span><b style="color:var(--orange);font-size:18px;">${fmtB(finalAmt)}</b>
-      </div>`:`
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      </div>`:`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="color:var(--muted);">จำนวนที่ตัด</span><b style="color:var(--orange);font-size:18px;">- ${fmtB(finalAmt)}</b>
       </div>`}
       <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
@@ -1185,7 +1287,14 @@ function quickTopup(id){populateMemberSelects();document.getElementById('topup-s
   `).join('');
   openModal('modal-topup');
 }
-function quickDeduct(id){populateMemberSelects();document.getElementById('svc-sel').value=id;updateSvcPreview();openModal('modal-deduct');}
+function quickDeduct(id){
+  populateMemberSelects();
+  document.getElementById('svc-sel').value=id;
+  updateSvcPreview();
+  selectedStore=null;
+  renderStoreSelector();
+  openModal('modal-deduct');
+}
 window.quickTopup=quickTopup;window.quickDeduct=quickDeduct;
 
 /* ─ QR ─ */
@@ -1411,16 +1520,25 @@ async function saveAppt(){
   const memberId=document.getElementById('appt-member').value;
   const date=document.getElementById('appt-date').value;
   const time=document.getElementById('appt-time').value;
-  const service=document.getElementById('appt-svc').value;
   const note=document.getElementById('appt-note').value.trim();
   if(!date||!time){showToast('กรุณาเลือกวันและเวลา');return;}
+
+  // อ่านบริการที่เลือก (หลายอย่างได้)
+  const checked=[...document.querySelectorAll('#appt-svc-list input[type=checkbox]:checked')].map(c=>c.value);
+  if(!checked.length){showToast('กรุณาเลือกบริการอย่างน้อย 1 อย่าง');return;}
+  const service=checked.join(', ');
+
   let memberName='',walkinName='';
   if(memberId==='walk-in')walkinName=document.getElementById('appt-walkin').value.trim()||'Walk-in';
   else if(memberId)memberName=getMember(memberId)?.name||'';
   showLoading(true);
   try{
     await addDoc(collection(db,'appointments'),{memberId:memberId||'',memberName,walkinName,date,time,service,note,status:'waiting',createdAt:serverTimestamp()});
-    closeModal('modal-add-appt');selectedDate=date;showToast('📅 บันทึกนัดหมายแล้ว ✓');
+    closeModal('modal-add-appt');
+    selectedDate=date;
+    // reset checkboxes
+    document.querySelectorAll('#appt-svc-list input[type=checkbox]').forEach(c=>c.checked=false);
+    showToast('📅 บันทึกนัดหมายแล้ว ✓');
   }catch(e){showToast('❌ '+e.message);}
   showLoading(false);
 }
@@ -1441,13 +1559,16 @@ window.deleteAppt=deleteAppt;
 
 /* ─ SETTINGS ─ */
 function renderSettings(){
-  document.getElementById('set-shop-preview').textContent=(shop.name||'Zesty Nail Studio')+' →';
+  document.getElementById('set-shop-preview').textContent=(shop.name||'The SIGNATURE')+' →';
   document.getElementById('set-pkg-count').textContent=PACKAGES.length+' แพ็กเกจ →';
+  const sc=document.getElementById('set-stores-count');
+  if(sc)sc.textContent=(shop.stores||[]).length+' ร้าน →';
   if(shop.lowBalance)document.getElementById('set-lowbal').value=shop.lowBalance;
-  const d=shop.discounts||{silver:0,gold:0,platinum:10};
-  const ds=document.getElementById('disc-silver');if(ds)ds.value=d.silver||0;
-  const dg=document.getElementById('disc-gold');if(dg)dg.value=d.gold||0;
-  const dp=document.getElementById('disc-platinum');if(dp)dp.value=d.platinum||0;
+  const d=shop.discounts||{};
+  ['bronze','silver','gold','platinum','diamond'].forEach(t=>{
+    const el=document.getElementById('disc-'+t);
+    if(el)el.value=d[t]||0;
+  });
 }
 window.renderSettings=renderSettings;
 
@@ -1460,7 +1581,7 @@ function openShopEdit(){
 window.openShopEdit=openShopEdit;
 
 async function saveShop(){
-  shop.name=document.getElementById('set-name').value.trim()||'Zesty Nail Studio';
+  shop.name=document.getElementById('set-name').value.trim()||'The SIGNATURE';
   shop.phone=document.getElementById('set-phone').value.trim();
   shop.addr=document.getElementById('set-addr').value.trim();
   showLoading(true);
@@ -1479,40 +1600,77 @@ async function saveLowBal(){
 window.saveLowBal=saveLowBal;
 
 async function saveDiscounts(){
-  shop.discounts={
-    silver:parseInt(document.getElementById('disc-silver')?.value)||0,
-    gold:parseInt(document.getElementById('disc-gold')?.value)||0,
-    platinum:parseInt(document.getElementById('disc-platinum')?.value)||0,
-  };
+  const tiers=['bronze','silver','gold','platinum','diamond'];
+  shop.discounts={};
+  tiers.forEach(t=>{
+    const el=document.getElementById('disc-'+t);
+    shop.discounts[t]=el?parseInt(el.value)||0:0;
+  });
   try{
     await setDoc(doc(db,'settings','main'),{shop},{merge:true});
-    showToast('บันทึกส่วนลดแล้ว ✓');
+    showToast('✓ บันทึกส่วนลดแล้ว');
   }catch(e){showToast('❌ '+e.message);}
 }
 window.saveDiscounts=saveDiscounts;
 
 function renderPackagesEdit(){
   document.getElementById('pkg-list-edit').innerHTML=PACKAGES.map((p,i)=>`
-    <div style="background:var(--white);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);">
-      <input class="fi" value="${p.name}" onchange="PACKAGES[${i}].name=this.value" style="margin-bottom:8px;font-weight:600;" placeholder="ชื่อ">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-        <div><label class="fl">ราคา</label><input type="number" class="fi" value="${p.price}" onchange="PACKAGES[${i}].price=+this.value" placeholder="ราคา"></div>
-        <div><label class="fl">เครดิต</label><input type="number" class="fi" value="${p.credit}" onchange="PACKAGES[${i}].credit=+this.value" placeholder="เครดิต"></div>
-        <div><label class="fl">โบนัส%</label><input type="number" class="fi" value="${p.bonus}" onchange="PACKAGES[${i}].bonus=+this.value" placeholder="%"></div>
+    <div style="background:var(--white);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);" data-pkg-index="${i}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--muted);font-weight:500;">แพ็กเกจที่ ${i+1}</div>
+        <button class="act-btn act-outline" style="padding:4px 10px;font-size:12px;background:#FEE2E2;color:#991B1B;border-color:#FEE2E2;" onclick="removePkg(${i})">🗑️ ลบ</button>
       </div>
-      <button class="act-btn act-outline" style="width:100%;margin-top:8px;background:#FEE2E2;color:#991B1B;border-color:#FEE2E2;" onclick="removePkg(${i})">🗑️ ลบแพ็กเกจนี้</button>
+      <input class="fi pkg-name" data-i="${i}" value="${p.name}" style="margin-bottom:8px;font-weight:600;" placeholder="ชื่อแพ็กเกจ">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div><label class="fl">ราคา (฿)</label><input type="number" class="fi pkg-price" data-i="${i}" value="${p.price}" placeholder="ราคา"></div>
+        <div><label class="fl">เครดิต (฿)</label><input type="number" class="fi pkg-credit" data-i="${i}" value="${p.credit}" placeholder="เครดิต"></div>
+        <div><label class="fl">โบนัส (%)</label><input type="number" class="fi pkg-bonus" data-i="${i}" value="${p.bonus}" placeholder="%"></div>
+      </div>
     </div>`).join('');
 }
 
-function addPackage(){PACKAGES.push({id:'pkg'+Date.now(),name:'แพ็กเกจใหม่',price:500,credit:500,bonus:0,featured:false});renderPackagesEdit();}
+function addPackage(){
+  PACKAGES.push({id:'pkg'+Date.now(),name:'แพ็กเกจใหม่',price:500,credit:500,bonus:0,featured:false});
+  renderPackagesEdit();
+  // scroll ลงล่างสุดเพื่อเห็นแพ็กเกจใหม่
+  setTimeout(()=>{
+    const el=document.getElementById('pkg-list-edit');
+    if(el)el.lastElementChild?.scrollIntoView({behavior:'smooth'});
+  },100);
+}
 window.addPackage=addPackage;
-function removePkg(i){if(PACKAGES.length<=1){showToast('ต้องมีอย่างน้อย 1');return;}PACKAGES.splice(i,1);renderPackagesEdit();}
+
+function removePkg(i){
+  if(PACKAGES.length<=1){showToast('ต้องมีอย่างน้อย 1 แพ็กเกจ');return;}
+  PACKAGES.splice(i,1);
+  renderPackagesEdit();
+  showToast('ลบแพ็กเกจแล้ว');
+}
 window.removePkg=removePkg;
 
 async function savePackages(){
+  // อ่านค่าจาก DOM ก่อนบันทึก เพื่อให้ได้ข้อมูลล่าสุดแน่นอน
+  document.querySelectorAll('.pkg-name').forEach(el=>{
+    const i=parseInt(el.dataset.i);if(PACKAGES[i])PACKAGES[i].name=el.value;
+  });
+  document.querySelectorAll('.pkg-price').forEach(el=>{
+    const i=parseInt(el.dataset.i);if(PACKAGES[i])PACKAGES[i].price=+el.value||0;
+  });
+  document.querySelectorAll('.pkg-credit').forEach(el=>{
+    const i=parseInt(el.dataset.i);if(PACKAGES[i])PACKAGES[i].credit=+el.value||0;
+  });
+  document.querySelectorAll('.pkg-bonus').forEach(el=>{
+    const i=parseInt(el.dataset.i);if(PACKAGES[i])PACKAGES[i].bonus=+el.value||0;
+  });
+
   showLoading(true);
-  try{await setDoc(doc(db,'settings','main'),{packages:PACKAGES},{merge:true});showToast('บันทึกแพ็กเกจแล้ว ✓');}
-  catch(e){showToast('❌ '+e.message);}
+  try{
+    await setDoc(doc(db,'settings','main'),{packages:PACKAGES},{merge:true});
+    showToast('✓ บันทึกแพ็กเกจแล้ว '+PACKAGES.length+' แพ็กเกจ');
+    renderPackagesEdit(); // refresh หน้าจอ
+    const sc=document.getElementById('set-pkg-count');
+    if(sc)sc.textContent=PACKAGES.length+' แพ็กเกจ →';
+  }catch(e){showToast('❌ '+e.message);}
   showLoading(false);
 }
 window.savePackages=savePackages;
@@ -1532,13 +1690,102 @@ window.exportData=exportData;
 function openQuickAction(){openModal('modal-quick');}
 window.openQuickAction=openQuickAction;
 
+/* ─ STORES ─ */
+let selectedStore=null;
+
+function renderStoreSelector(){
+  const stores=shop.stores||[];
+  const el=document.getElementById('store-selector');if(!el)return;
+  // auto-select ถ้ามีแค่ 1 ร้าน
+  if(stores.length===1)selectedStore=stores[0];
+  el.innerHTML=stores.map(s=>`
+    <div onclick="selectStore('${s.id}')" id="store-btn-${s.id}" style="
+      border:2px solid ${selectedStore?.id===s.id?'var(--orange)':'var(--border)'};
+      background:${selectedStore?.id===s.id?'var(--orange-light)':'var(--white)'};
+      border-radius:var(--radius-sm);padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;">
+      <div style="font-size:24px;">${s.icon}</div>
+      <div style="font-size:12px;font-weight:500;margin-top:4px;color:${selectedStore?.id===s.id?'var(--orange)':'var(--text)'};">${s.name}</div>
+    </div>`).join('');
+}
+
+function selectStore(id){
+  selectedStore=(shop.stores||[]).find(s=>s.id===id)||null;
+  renderStoreSelector();
+}
+window.selectStore=selectStore;
+
+function renderStoresEdit(){
+  const stores=shop.stores||[];
+  document.getElementById('stores-list-edit').innerHTML=stores.map((s,i)=>`
+    <div style="background:var(--white);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input class="fi" value="${s.icon}" onchange="(shop.stores||[])[${i}].icon=this.value" style="width:60px;text-align:center;font-size:20px;" placeholder="🏪">
+        <input class="fi" value="${s.name}" onchange="(shop.stores||[])[${i}].name=this.value" placeholder="ชื่อร้าน" style="flex:1;">
+      </div>
+      <button class="act-btn act-outline" style="width:100%;background:#FEE2E2;color:#991B1B;border-color:#FEE2E2;" onclick="removeStore(${i})">🗑️ ลบร้านนี้</button>
+    </div>`).join('');
+  const sc=document.getElementById('set-stores-count');
+  if(sc)sc.textContent=stores.length+' ร้าน →';
+}
+
+function addStore(){
+  if(!shop.stores)shop.stores=[];
+  shop.stores.push({id:'store'+Date.now(),name:'ร้านใหม่',icon:'🏪'});
+  renderStoresEdit();
+}
+window.addStore=addStore;
+
+function removeStore(i){
+  shop.stores.splice(i,1);renderStoresEdit();
+}
+window.removeStore=removeStore;
+
+async function saveStores(){
+  showLoading(true);
+  try{
+    await setDoc(doc(db,'settings','main'),{shop},{merge:true});
+    showToast('บันทึกร้านแล้ว ✓');
+    renderStoresEdit();
+  }catch(e){showToast('❌ '+e.message);}
+  showLoading(false);
+}
+window.saveStores=saveStores;
+
 /* ─ INIT ─ */
-setTimeout(()=>{document.getElementById('splash').classList.add('hide');renderDashboard();},1600);
+setTimeout(()=>{
+  document.getElementById('splash').classList.add('hide');
+
+  // ตรวจสอบ URL parameter จาก iPhone Shortcut NFC
+  const params=new URLSearchParams(window.location.search);
+  const memberId=params.get('member');
+
+  if(memberId){
+    // มี member ID ใน URL → ไปหน้า NFC แล้วแสดงข้อมูลสมาชิกทันที
+    goPage('qr');
+    // รอ Firebase โหลดข้อมูลก่อน แล้วค่อยแสดง
+    const tryShow=()=>{
+      const m=getMember(memberId);
+      if(m){
+        showQRResult(m);
+        showToast('สวัสดีค่ะ '+m.name+' 💅');
+      } else if(members.length===0){
+        setTimeout(tryShow,500); // รอ Firebase
+      } else {
+        document.getElementById('qr-result').innerHTML=`<div class="info-box ib-orange">⚠️ ไม่พบสมาชิก ID: ${memberId}</div>`;
+      }
+    };
+    setTimeout(tryShow,1000);
+  } else {
+    renderDashboard();
+  }
+},1600);
+
 // init packages page when navigated
 const origGoPage2=window.goPage2;
 window.goPage2=function(page){
   origGoPage2(page);
   if(page==='packages')renderPackagesEdit();
+  if(page==='stores-edit')renderStoresEdit();
 };
 </script>
 </body>
